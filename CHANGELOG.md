@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4 — Release provenance
+
+- Attest main.js and styles.css with GitHub build provenance.
+- Attach only supported Obsidian plugin files; retain checksums in CI output.
+- Validate release asset names before CI publishes the release.
+
 ## 0.1.3 — English documentation
 
 - Add an English README covering installation, features, local processing and compatibility.
