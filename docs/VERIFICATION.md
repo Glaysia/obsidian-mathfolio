@@ -5,6 +5,7 @@
 - Linux 데스크톱, Flatpak Obsidian 1.14.5, 실제 b2 Vault.
 - 플러그인 개발 버전 0.1.0, TypeScript 7.0.2, Node.js 24.
 - SDK 0.1.1 / protocol 1. 원본 커밋과 WASM 해시는 루트 sdk.lock.json에 기록했다.
+- Rust 빌드 경로를 `/mathfolio`, `/cargo`로 매핑해 빌더별 절대 경로가 WASM 해시를 바꾸지 않도록 했다.
 - 생성된 main.js는 약 20 MiB다. WASM, 계산 Worker, Nanum Gothic과 라이선스를 내장했다.
 - npm run check, npm test(4개), npm run build 통과.
 - 설치 전 플러그인 파일과 community-plugins.json 백업을 리포의 .local-backups에 보존했다.
@@ -28,5 +29,5 @@
 - Windows, Obsidian Mobile, 분리 창은 검증하지 않았다.
 - 한글 표시는 확인했으나 물리 한글 IME 조합·클립보드·모든 단축키를 전수 검증하지 않았다.
 - 정상 저장·재열기와 충돌 복구는 확인했다. 앱 강제 종료/전원 차단 복구 및 디스크 쓰기와 외부 프로세스 쓰기의 원자적 배제는 보장하지 않는다.
-- 원본의 0.1.1 SDK GitHub Release는 아직 미게시 상태다. CI는 고정 원본 커밋을 빌드하며 공개 플러그인 릴리스는 보류한다.
+- 원본의 0.1.1 SDK GitHub Release는 미게시 상태다. 0.1.0 플러그인 릴리스는 원본 커밋·도구 버전·WASM 해시를 고정한 소스 빌드를 사용한다. 사용자가 Linux 실사용 확인 후 0.1.0 공개 릴리스를 요청했다.
 - 커뮤니티 등록과 모든 배포 환경의 적합성은 아직 확인하지 않았다.

@@ -4,14 +4,15 @@
   "protocol": 1,
   "sourceRepository": "https://github.com/Glaysia/mathfolio",
   "sourceCommit": "399d201c682e47757b0218fc80b3fb0af233b991",
-  "status": "local-build",
+  "status": "source-build",
   "releaseTag": null,
   "assetUrl": null,
   "sha256": null,
-  "wasmSha256": "06c9ae0b3de518c2fe99911dd2cfa2e8658d1a3e800b5fb115489a7784231bd4",
+  "wasmSha256": "c893b2b02b976780aeb58b465c00efbd1f0fb805c25a2bb67d0267be1f0bc220",
   "toolchain": {
     "rust": "1.99.0",
     "wasmBindgen": "0.2.129",
     "binaryen": "132.0.0"
-  }
+  },
+  "buildPaths": "remapped"
 }

@@ -1,45 +1,45 @@
 # 릴리스 절차
 
-현재는 b2에 설치한 Linux 개발 빌드가 있다. 검증 범위는 VERIFICATION.md를 따른다. SDK 릴리스 pin과 남은 배포 검증이 끝나기 전에는 태그·플러그인 공개 릴리스를 만들지 않는다.
+플러그인 버전과 SDK 버전은 독립적이다. 0.1.0 플러그인은 Mathfolio SDK 0.1.1 / protocol 1을 사용한다.
 
-CI는 sdk.lock.json의 원본 커밋을 별도로 checkout하여 SDK를 빌드하고 WASM 해시를 대조한다. 아래 tarball 의존성 단계는 원본 SDK 릴리스 이후에 진행한다.
+## SDK 고정
 
-## SDK 준비
+현재는 sdk.lock.json의 원본 커밋을 별도로 checkout하여 같은 Rust·wasm-bindgen·Binaryen 버전으로 빌드한다. `npm run sdk:build -- /path/to/mathfolio`가 절대 경로를 고정 가상 경로로 바꾸고, `npm run sdk:link`가 원본 커밋과 WASM SHA-256을 검사한다. CI와 release workflow도 같은 절차를 사용한다.
 
-1. 원본 Mathfolio 리포에서 생성한 WASM SDK tarball을 버전이 고정된 GitHub Release 자산으로 게시한다.
-2. package.json의 dependencies에 `@mathfolio/wasm-sdk`를 해당 tarball URL로 추가하고 npm install로 lockfile을 생성한다.
-3. sdk.lock.json에 SDK 버전·프로토콜·원본 커밋·태그·자산 URL·SHA-256을 기록한다. 원본 소스와 빌드 안내가 해당 커밋에서 접근 가능해야 한다.
-4. CI에 SDK tarball SHA-256 검증을 연결한다. 로컬 SDK 링크를 사용한 결과를 배포 검증으로 대신하지 않는다.
+원본 SDK가 GitHub Release 자산으로 게시되면 고정 tarball URL을 package.json dependencies에 추가하고 package-lock.json을 갱신할 수 있다. 이때 sdk.lock.json의 status를 released로 바꾸고 실제 태그·URL·tarball SHA-256을 기록한다. 브랜치 HEAD나 latest를 배포 의존성으로 쓰지 않는다.
 
-예정 URL 형식은 `https://github.com/Glaysia/mathfolio/releases/download/<tag>/mathfolio-wasm-sdk-<version>.tar.gz`다. 실제 자산 게시 후 확정하며, 존재하지 않는 URL을 package.json에 미리 넣지 않는다.
+## 검증과 버전
 
-## 첫 플러그인 릴리스 전
-
-PLAN의 저장·수명·입력·자산·라이선스 검증을 끝내고 결과를 기록한다. 특히 현재 main.js가 WASM·Worker·글꼴·고지를 내장한다. 깨끗한 설치 경로와 Windows 검증을 완료한 뒤 release-state.json의 ready를 true로 변경한다. 기본 워크플로는 이 조건과 SDK pin을 검사하고, 준비되지 않으면 draft 생성 전에 중단한다.
-
-## 버전과 태그
+검증 범위는 VERIFICATION.md에 기록한다. 현재 확인한 환경은 Linux / Obsidian 1.14.5다. 다른 플랫폼에서 확인하지 않은 동작을 검증됐다고 표시하지 않는다.
 
 ```sh
 npm ci
+npm run sdk:link
 npm run check
-npm version 0.1.1 --no-git-tag-version
-# 최초 버전은 현재 0.1.0 그대로 사용할 수 있다.
-# 변경된 package.json/package-lock.json/manifest.json/versions.json을 검토하고 커밋한다.
+npm test
 npm run build
 npm run check:release
-
-git tag 0.1.1
-git push origin main
-git push origin 0.1.1
 ```
 
-예시는 다음 버전이 0.1.1인 경우다. 태그는 반드시 manifest.version과 일치해야 한다. `v0.1.1`은 사용하지 않는다. `npm version`의 version 스크립트가 manifest와 versions를 갱신한다.
+위 명령은 sdk.lock.json에 맞는 로컬 SDK를 이미 빌드한 경우다. SDK가 없으면 원본의 빌드 도구를 준비하고 sdk:build부터 실행한다.
 
-## Actions와 공개
+버전을 바꿀 때는 `npm version 0.1.1 --no-git-tag-version`처럼 실행한다. version 스크립트가 manifest.json과 versions.json을 갱신한다. 변경된 package.json, package-lock.json, manifest.json, versions.json을 검토해 커밋한다.
 
-`.github/workflows/release.yml`은 태그 커밋을 checkout하고 npm ci → check → build → check:release를 거쳐 draft를 만든다. 첨부 파일은 main.js, manifest.json, 존재할 경우 styles.css, SHA256SUMS.txt다. 소스는 같은 태그의 GitHub source archive에서 제공한다.
+## 태그와 draft
 
-첨부 파일을 새 Vault의 `.obsidian/plugins/mathfolio/`에 설치해 검증한 다음 draft를 공개한다. ZIP만 첨부하는 방식으로 표준 파일을 대체하지 않는다. 공개가 끝나도 커뮤니티 등록이 자동으로 되는 것은 아니다.
+```sh
+git tag -a 0.1.0 -m "Mathfolio for Obsidian 0.1.0"
+git push origin main
+git push origin 0.1.0
+```
+
+태그는 manifest.version과 정확히 같아야 한다. v 접두어를 붙이지 않는다. release workflow가 태그를 checkout해 SDK 생성, 검사, 테스트, 플러그인 빌드와 provenance 확인 후 draft를 만든다.
+
+첨부 파일은 main.js, manifest.json, 존재할 경우 styles.css, SHA256SUMS.txt다. WASM·Worker·글꼴·고지는 main.js에 포함한다. 대응 소스는 플러그인 태그와 sdk.lock.json의 원본 커밋에서 접근할 수 있다.
+
+## 공개
+
+draft의 첨부 파일을 내려받아 SHA256SUMS.txt와 manifest 버전을 확인한다. 릴리스 노트에 기능과 실제 검증 환경을 적고, 사용자에게 공개 요청을 받은 경우 draft를 공개한다. 커뮤니티 등록은 별도다. 등록 시 manifest.version과 일치하는 공개 GitHub Release가 필요하다.
 
 ## 공식 참고
 

@@ -13,7 +13,7 @@
 ## 1. SDK 배포 기준 확정
 
 - [x] 현재는 sdk.lock.json의 고정 원본 커밋을 로컬/CI에서 빌드하고 WASM SHA-256을 대조한다.
-- [ ] Mathfolio에서 이름 변경을 반영한 0.1.1 이상 SDK를 GitHub Release에 게시한다. 원본 리포의 별도 작업이다.
+- [ ] 추후 Mathfolio SDK를 GitHub Release tarball 의존성으로 전환할 수 있다. 0.1.0은 고정 원본 소스 빌드로 배포한다.
 - 생성 패키지명 `@mathfolio/wasm-sdk`, 버전, 프로토콜, 원본 커밋을 확인한다.
 - 플러그인의 package.json에 해당 릴리스 tarball URL을 의존성으로 추가한다. latest, 브랜치 HEAD, 개발자 절대 경로는 배포 의존성으로 사용하지 않는다.
 - package-lock.json 및 sdk.lock.json에 실제 URL·태그·커밋·SHA-256을 고정한다. CI에서 다운로드 파일의 SHA-256을 검사한다.
@@ -48,7 +48,7 @@
 - 오프라인에서 WASM·Worker·필요 글꼴이 모두 로드되는지 확인한다.
 - minAppVersion은 현재 설정한 1.14.4를 시작점으로 실제 검증 후 확정한다. Mobile은 별도 검증 전까지 지원을 주장하지 않는다.
 - 번들 내 SDK/제3자 라이선스 고지 보존과 원본 소스 접근 경로를 확인한다.
-- 위 검증을 통과한 뒤 release-state.json의 ready를 true로 바꾼다. 플래그 변경만으로 검증을 대신하지 않는다.
+- 0.1.0은 Linux 검증과 사용자 실사용 확인을 근거로 사용자의 명시적 공개 요청에 따라 릴리스한다. Windows·물리 IME·강제 종료 복구는 남은 범위로 공개한다. 플래그 변경만으로 검증을 대신하지 않는다.
 
 ## 6. GitHub 릴리스와 커뮤니티 등록
 

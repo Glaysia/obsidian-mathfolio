@@ -2,7 +2,7 @@
 
 [Mathfolio](https://github.com/Glaysia/mathfolio)의 Rust 워크시트 편집기와 계산 엔진을 Obsidian에서 사용하는 TypeScript 플러그인이다.
 
-현재 개발 빌드를 b2 Vault에 설치하고 **Linux / Obsidian 1.14.5에서 편집·계산·저장·재열기와 PDF 출력을 확인**했다. GitHub 정식 릴리스와 커뮤니티 등록은 아직 하지 않았다. 검증 범위는 [검증 기록](docs/VERIFICATION.md)을 따른다.
+현재 개발 빌드를 b2 Vault에 설치하고 **Linux / Obsidian 1.14.5에서 편집·계산·저장·재열기와 PDF 출력을 확인**했다. 0.1.0은 GitHub Releases로 배포하며 커뮤니티 등록은 별도 절차다. 검증 범위는 [검증 기록](docs/VERIFICATION.md)을 따른다.
 
 ## 사용
 
@@ -22,10 +22,10 @@ Node.js 24와 npm을 사용한다. 로컬 SDK 소스는 `/home/harry/Projects/Ru
 ```sh
 cd /home/harry/Projects/RustProjects/mathfolio
 npm ci --prefix web
-python3 scripts/build-wasm.py
 
 cd /home/harry/Projects/WebstormProjects/obsidian-mathfolio
 npm ci
+npm run sdk:build
 npm run sdk:link
 npm run check
 npm test
@@ -33,7 +33,7 @@ npm run build
 npm run install:vault -- /home/harry/Documents/b2
 ```
 
-Rust·wasm-bindgen 준비는 원본의 [SDK 빌드 안내](https://github.com/Glaysia/mathfolio/blob/main/docs/WASM-SDK.md)를 따른다. 다른 체크아웃은 `npm run sdk:link -- /absolute/path/to/mathfolio`로 연결한다. 이 명령은 SDK 버전·원본 커밋·WASM SHA-256을 `sdk.lock.json`과 대조한다. SDK를 갱신할 때는 pin과 검증 기록을 함께 갱신한다. `npm ci` 후에는 링크를 다시 만든다.
+Rust·wasm-bindgen 준비는 원본의 [SDK 빌드 안내](https://github.com/Glaysia/mathfolio/blob/main/docs/WASM-SDK.md)를 따른다. 다른 체크아웃은 `npm run sdk:link -- /absolute/path/to/mathfolio`로 연결한다. sdk:build는 Rust 경로를 고정된 가상 경로로 매핑해 로컬/CI의 WASM 빌드 경로 차이를 제거한다. sdk:link는 SDK 버전·원본 커밋·WASM SHA-256을 `sdk.lock.json`과 대조한다. SDK를 갱신할 때는 pin과 검증 기록을 함께 갱신한다. `npm ci` 후에는 링크를 다시 만든다.
 
 설치 도구는 기존 플러그인 파일과 활성 플러그인 목록을 리포의 `.local-backups/`에 보존한다. 실행 중인 Obsidian에서는 커뮤니티 플러그인에서 Mathfolio를 다시 켜거나, 활성화된 Obsidian CLI의 `obsidian vault=b2 plugin:reload id=mathfolio`로 새 빌드를 적용한다.
 
@@ -43,7 +43,7 @@ Rust·wasm-bindgen 준비는 원본의 [SDK 빌드 안내](https://github.com/Gl
 | --- | --- |
 | GitHub 리포 | `Glaysia/obsidian-mathfolio` |
 | 플러그인 이름 / ID | `Mathfolio` / `mathfolio` |
-| 플러그인 개발 버전 | `0.1.0` |
+| 플러그인 버전 | `0.1.0` |
 | SDK | `@mathfolio/wasm-sdk` 0.1.1 / 프로토콜 1 |
 | 라이선스 | `AGPL-3.0-only` |
 | 초기 대상 | Obsidian Desktop / Linux, Windows는 후속 검증 |
@@ -54,7 +54,7 @@ Rust 프로젝트가 편집기·문서 모델·계산·Undo/Redo·PDF 출력을 
 
 빌드 결과는 `main.js`, `manifest.json`, `styles.css`다. **WASM·Worker·한글 글꼴·라이선스 고지를 main.js에 포함**하므로 사용자는 Rust·Node·Mathfolio 독립판을 따로 설치하지 않는다. CDN이나 로컬 서버도 필요하지 않다. 포함된 고지는 플러그인 설정에서 확인할 수 있다.
 
-GitHub 릴리스는 manifest 버전과 정확히 같은 `x.y.z` 태그로 draft를 만든다. Windows·물리 IME·종료 복구 등 남은 검증과 SDK 릴리스 pin이 완료되기 전에는 공개 릴리스를 만들지 않는다.
+GitHub 릴리스는 manifest 버전과 정확히 같은 `x.y.z` 태그로 draft를 만든 뒤 첨부 파일을 검증해 공개한다. 0.1.0은 고정 SDK 소스 빌드를 사용한다. Windows·물리 IME·강제 종료 복구는 아직 검증하지 않았으며, 현재 확인한 환경은 Linux / Obsidian 1.14.5다.
 
 [개발 계획](PLAN.md) · [릴리스 절차](docs/RELEASING.md) · [검증 기록](docs/VERIFICATION.md)
 

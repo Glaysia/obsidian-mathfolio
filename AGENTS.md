@@ -13,4 +13,5 @@
   required SDK assets through that installation path before enabling release.
 - Run npm run check, npm test and npm run build for implementation changes.
   Test real WASM/Worker execution in Obsidian for host or packaging changes.
-- Create draft GitHub releases using exact manifest version tags, without v.
+- Use exact manifest version tags without v. Build a draft, verify assets and
+  publish when the user requests a public release.

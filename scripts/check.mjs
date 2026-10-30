@@ -30,11 +30,20 @@ if (existsSync("src/main.ts")) {
 if (process.argv.includes("--release")) {
   assert.equal(read("release-state.json").ready, true, "Plugin release acceptance is still pending");
   const sdk = read("sdk.lock.json");
-  assert.equal(sdk.status, "released");
   assert.match(sdk.sourceCommit, /^[a-f0-9]{40}$/);
-  assert.match(sdk.sha256 ?? "", /^[a-f0-9]{64}$/);
-  assert.ok(sdk.releaseTag && sdk.assetUrl?.startsWith("https://github.com/Glaysia/mathfolio/releases/download/"));
-  assert.equal(pkg.dependencies?.[sdk.package], sdk.assetUrl, "SDK dependency must match its release pin");
+  assert.match(sdk.wasmSha256 ?? "", /^[a-f0-9]{64}$/);
+  assert.equal(sdk.sourceRepository, "https://github.com/Glaysia/mathfolio");
+  if (sdk.status === "released") {
+    assert.match(sdk.sha256 ?? "", /^[a-f0-9]{64}$/);
+    assert.ok(sdk.releaseTag && sdk.assetUrl?.startsWith("https://github.com/Glaysia/mathfolio/releases/download/"));
+    assert.equal(pkg.dependencies?.[sdk.package], sdk.assetUrl, "SDK dependency must match its release pin");
+  } else {
+    assert.equal(sdk.status, "source-build", "SDK must have a pinned, reproducible source build or release");
+    assert.equal(sdk.buildPaths, "remapped");
+    assert.ok(existsSync("scripts/sdk-build.mjs"));
+  }
+  const info = read("build-info.json");
+  assert.deepEqual(info.sdk, sdk, "Bundle SDK provenance differs from the release pin");
   assert.ok(existsSync("src/main.ts") && existsSync("main.js"), "Plugin implementation/build is missing");
   const tag = process.env.GITHUB_REF_TYPE === "tag" ? process.env.GITHUB_REF_NAME : undefined;
   if (tag) assert.equal(tag, manifest.version, "Tag must match manifest.version without a v prefix");

@@ -1,4 +1,4 @@
 {
-  "ready": false,
-  "reason": "Linux development build installed and exercised in b2. Released SDK pin, Windows and remaining acceptance checks are pending."
+  "ready": true,
+  "reason": "User requested public 0.1.0 release after Linux Obsidian 1.14.5 and b2 user verification. Windows and physical IME remain unverified and are disclosed in release notes."
 }
