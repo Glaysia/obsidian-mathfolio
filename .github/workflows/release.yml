@@ -1,0 +1,30 @@
+name: Draft Obsidian release
+on:
+  push:
+    tags: ['*']
+permissions:
+  contents: read
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build
+      - run: npm run check:release
+      - name: Prepare and create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          files=(main.js manifest.json)
+          if [ -f styles.css ]; then files+=(styles.css); fi
+          sha256sum "${files[@]}" > SHA256SUMS.txt
+          gh release create "$GITHUB_REF_NAME" "${files[@]}" SHA256SUMS.txt --verify-tag --draft --title "Mathfolio $GITHUB_REF_NAME" --generate-notes

@@ -1,0 +1,11 @@
+{
+  "package": "@mathfolio/wasm-sdk",
+  "version": "0.1.1",
+  "protocol": 1,
+  "sourceRepository": "https://github.com/Glaysia/mathfolio",
+  "sourceCommit": "399d201c682e47757b0218fc80b3fb0af233b991",
+  "status": "pending-release",
+  "releaseTag": null,
+  "assetUrl": null,
+  "sha256": null
+}

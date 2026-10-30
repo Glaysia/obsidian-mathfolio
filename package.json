@@ -1,0 +1,29 @@
+{
+  "name": "obsidian-mathfolio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mathfolio worksheet editor integration for Obsidian.",
+  "type": "module",
+  "main": "main.js",
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Glaysia/obsidian-mathfolio.git"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "check": "node scripts/check.mjs && node --check scripts/build.mjs && node --check scripts/sdk-link.mjs && node --check scripts/version.mjs",
+    "build": "npm run check && node scripts/build.mjs",
+    "check:release": "node scripts/check.mjs --release",
+    "sdk:link": "node scripts/sdk-link.mjs",
+    "version": "node scripts/version.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "esbuild": "0.28.2",
+    "obsidian": "1.14.4",
+    "typescript": "7.0.2"
+  }
+}

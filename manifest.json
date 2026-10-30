@@ -1,0 +1,10 @@
+{
+  "id": "mathfolio",
+  "name": "Mathfolio",
+  "version": "0.1.0",
+  "minAppVersion": "1.14.4",
+  "description": "Edit and calculate mathematical worksheets with the Mathfolio engine.",
+  "author": "Glaysia",
+  "authorUrl": "https://github.com/Glaysia",
+  "isDesktopOnly": true
+}
