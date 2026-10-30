@@ -1,4 +1,4 @@
 {
   "ready": true,
-  "reason": "User requested public 0.1.0 release after Linux Obsidian 1.14.5 and b2 user verification. Windows and physical IME remain unverified and are disclosed in release notes."
+  "reason": "User requested sequential 0.1.1–0.1.7 commits and CI publication of only 0.1.7. Verified standard three-file installation, WASM/Worker, save/reopen, PDF, searchable settings and conflict recovery in isolated Linux Obsidian 1.14.5. User also confirmed the updated plugin works. Windows, physical IME and popout workflows remain unverified."
 }

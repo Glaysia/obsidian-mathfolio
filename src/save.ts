@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 export function arrayBuffer(bytes: Uint8Array): ArrayBuffer {
-  return bytes.slice().buffer;
+  // Node Buffer is a Uint8Array subclass whose slice() keeps the backing buffer.
+  // A fresh typed array also handles packed asset views with nonzero offsets.
+  return new Uint8Array(bytes).buffer;
 }
 
 export async function fingerprint(bytes: ArrayBuffer | Uint8Array): Promise<string> {

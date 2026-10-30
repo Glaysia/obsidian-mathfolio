@@ -1,6 +1,8 @@
 # 검증 기록 — 2026-10-30
 
-## 환경과 빌드
+이전 0.1.0 기록은 아래에 보존한다. 최신 결과는 0.1.7 절을 따른다.
+
+## 0.1.0 환경과 빌드
 
 - Linux 데스크톱, Flatpak Obsidian 1.14.5, 실제 b2 Vault.
 - 플러그인 개발 버전 0.1.0, TypeScript 7.0.2, Node.js 24.
@@ -29,5 +31,27 @@
 - Windows, Obsidian Mobile, 분리 창은 검증하지 않았다.
 - 한글 표시는 확인했으나 물리 한글 IME 조합·클립보드·모든 단축키를 전수 검증하지 않았다.
 - 정상 저장·재열기와 충돌 복구는 확인했다. 앱 강제 종료/전원 차단 복구 및 디스크 쓰기와 외부 프로세스 쓰기의 원자적 배제는 보장하지 않는다.
-- 원본의 0.1.1 SDK GitHub Release는 미게시 상태다. 0.1.0 플러그인 릴리스는 원본 커밋·도구 버전·WASM 해시를 고정한 소스 빌드를 사용한다. 사용자가 Linux 실사용 확인 후 0.1.0 공개 릴리스를 요청했다.
+- 0.1.0 시점에는 SDK 릴리스가 미게시 상태여서 고정 소스 빌드를 사용했다. 0.1.7은 게시된 SDK 0.1.1 tarball 의존성으로 전환했다.
 - 커뮤니티 등록과 모든 배포 환경의 적합성은 아직 확인하지 않았다.
+
+
+## 0.1.7 통합 검증
+
+- 2026-10-30, Linux / Flatpak Obsidian 1.14.5 / Node.js 24 / TypeScript 5.9.3.
+- 기존 b2와 분리한 임시 프로필과 Vault에서 main.js, manifest.json, styles.css 세 파일만 설치했다. b2의 삭제된 테스트 문서는 재생성하지 않았다.
+- SDK 0.1.1 / protocol 1 고정 GitHub Release tarball을 npm ci로 설치했다. SDK 원본 저장소의 소스는 변경하지 않았다.
+- 깨끗한 npm ci 뒤 타입 검사, 공식 Obsidian 권장 strict ESLint 경고 0개, 회귀 테스트 9개, npm audit 취약점 0개, 빌드 및 릴리스 메타데이터 검사 통과.
+- main.js 4,922,658바이트, styles.css 2,740,908바이트. 각 파일은 5,000,000바이트 미만이다. 원본 WASM 13,251,502바이트를 Binaryen으로 13,056,553바이트로 최적화하고, Worker·고지와 함께 Brotli로 압축했다.
+- Desktop 내장 Node zlib로 압축 해제, WASM 초기화, 정적 Blob Worker 실행과 한글 글꼴 표시를 실제 앱에서 확인했다. 글꼴은 CSS에 분할된 데이터로 포함한다.
+- 실제 DevTools 키보드/포인터 입력으로 `2+3=` 작성 후 Worker 결과 5, 저장 성공과 dirty 해제를 확인했다.
+- SDK 세션을 종료하고 다시 열어 저장된 계산 캐시와 결과 5가 보존되는 것을 확인했다. 재열기 시 worker_count는 0이었다. 앱 자체 재시작 후에도 `2+3=5`, `X:=10`, `3X=30` 표시를 스크린샷으로 확인했다. inspectResults는 실행 중 Worker의 결과 진단이며, 저장 캐시는 inspectDocument의 calculation_cache와 실제 표시로 확인했다.
+- SDK PDF 출력 `%PDF-` 헤더와 44,445바이트 출력을 확인했다. 별도 QA.pdf의 Vault 쓰기도 확인했다.
+- 편집 중 외부 파일 수정 후 저장 시 SaveConflict 반환, 외부 내용 보존과 Mathfolio Recovery 사본 생성을 실제 Vault API로 확인했다.
+- 선언형 설정 세 항목과 Nord/호스트 테마 변경, 자동 저장 토글의 반영을 확인했다.
+- 워크시트 선택기가 현재 폴더의 파일과 Mathfolio Recovery 폴더를 표시하는 것을 확인했다. 전체 Vault 열거 호출은 호스트 소스에서 제거했다.
+- 통합 테스트 중 페이지에서 발생하는 HTTP(S) 요청은 0개였다. 이것은 SDK 자산을 서버나 CDN에서 가져오지 않는다는 검증이며 Obsidian 자체의 업데이트 확인을 차단한 테스트는 아니다.
+- 사용자가 수정본을 직접 사용하고 “너무 잘 되더라”라고 확인했다. 사용자가 입력한 QA 문서는 보존했다.
+- 통합 테스트에서 긴 CSS 변수의 Chromium 제한과 Node Buffer.slice의 backing-buffer 유지 문제를 발견해 수정했다. 글꼴을 작은 CSS 변수로 분할하고, ArrayBuffer 복사를 Uint8Array 생성자로 수행한다. Buffer 경계 회귀 검사를 추가했다.
+- 로컬 통합 실행 스크립트·JSON·스크린샷은 개발 체크아웃의 artifacts/에 남긴다. 사용자 Vault 데이터는 릴리스에 포함하지 않는다.
+
+Windows, 실제 분리 창, 물리 한글 IME 전체 흐름, 강제 종료/전원 차단 복구는 미검증이다. Obsidian 커뮤니티의 재검사 통과 여부는 해당 서비스의 새 결과를 기다려야 한다.

@@ -63,8 +63,12 @@ await build({ entryPoints: ["src/main.ts"], bundle: true, minify: true, keepName
   } }],
 });
 const font = readFileSync(join(sdk, "fonts/nanum/NanumGothic-Regular.ttf"));
+// Chromium limits individual custom-property values. Keep each font part below
+// that limit; the host joins the base64 font data before passing it to Rust.
+const fontParts = font.toString("base64").match(/.{1,524288}/g);
 writeFileSync("styles.css", readFileSync("css/plugin.css", "utf8") +
-  `\n/* Bundled Nanum Gothic TTF for the Rust editor; font license is embedded in main.js. */\n.mathfolio-view { --mathfolio-font-ttf: "data:font/ttf;base64,${font.toString("base64")}"; }\n`);
+  `\n/* Bundled Nanum Gothic TTF for the Rust editor; font license is embedded in main.js. */\n.mathfolio-view { --mathfolio-font-parts: ${fontParts.length};\n` +
+  fontParts.map((part, i) => `--mathfolio-font-${i}: "${part}";`).join("\n") + "\n}\n");
 const sizes = Object.fromEntries(["main.js", "styles.css"].map(file => [file, readFileSync(file).length]));
 writeFileSync("build-info.json", JSON.stringify({ sdk: JSON.parse(readFileSync("sdk.lock.json", "utf8")),
   bytes: sizes["main.js"], sizes, wasm: { inputBytes: input.length, optimizedBytes: wasm.length,

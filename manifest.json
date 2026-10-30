@@ -1,7 +1,7 @@
 {
   "id": "mathfolio",
   "name": "Mathfolio",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "minAppVersion": "1.14.4",
   "description": "Edit and calculate mathematical worksheets with the Mathfolio engine.",
   "author": "Glaysia",

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.7 — Verified integration
+
+- Validate compressed assets in a separate Linux Obsidian 1.14.5 Vault.
+- Split font data to respect Chromium CSS value limits and copy Node Buffer views safely.
+- Confirm calculation, save/reopen without recalculation, PDF, settings and conflict recovery.
+- Require lint and dependency audit in CI; publish only the final 0.1.7 plugin tag.
+
 ## 0.1.6 — Offline bundle size
 
 - Optimize and Brotli-compress the packaged WASM/Worker payload with printable binary encoding.

@@ -31,3 +31,13 @@ test("fingerprinting and writes respect typed-array offsets", async () => {
   assert.equal(new TextDecoder().decode(arrayBuffer(payload)), "PAYLOAD");
   assert.equal(await fingerprint(payload), await fingerprint(bytes("PAYLOAD")));
 });
+
+test("Node Buffer views cannot expose the packed header or neighboring bytes", async () => {
+  const payload = Buffer.from("headerPAYLOADtrailer").subarray(6, 13);
+  const copied = arrayBuffer(payload);
+  assert.equal(copied.byteLength, 7);
+  assert.equal(new TextDecoder().decode(copied), "PAYLOAD");
+  assert.equal(await fingerprint(payload), await fingerprint(bytes("PAYLOAD")));
+  payload.fill(0);
+  assert.equal(new TextDecoder().decode(copied), "PAYLOAD");
+});
