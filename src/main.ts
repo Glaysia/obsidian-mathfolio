@@ -1,27 +1,26 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import { Plugin, TFile, normalizePath, PluginSettingTab, Setting, Notice } from "obsidian";
-import type { ThemeMode } from "@mathfolio/wasm-sdk";
+import { DEFAULT_SETTINGS, readSettings, themeMode, errorMessage, type MathfolioSettingsData } from "./settings";
 import { wasm, workerSource, notices } from "mathfolio:assets";
 import { MathfolioView, VIEW_TYPE } from "./view";
 import { WorksheetPicker, askPath, NoticesModal } from "./modals";
 import { arrayBuffer } from "./save";
 
-interface Settings { theme: ThemeMode; autosave: boolean }
-const DEFAULTS: Settings = { theme: "follow_host", autosave: true };
 // Empty native document template from Mathfolio CanvasDocument::default; no TS math model.
 const EMPTY = new TextEncoder().encode(JSON.stringify({ version: 2, title: "Untitled worksheet",
   width: 793.7007874015748, height: 1122.51968503937, grid: 18.89763779527559,
   next_id: 1, regions: [], native_archive: null }));
 
 export default class MathfolioPlugin extends Plugin {
-  settings: Settings = DEFAULTS;
+  settings: MathfolioSettingsData = { ...DEFAULT_SETTINGS };
   workerUrl = "";
   private wasmUrl = "";
   private readonly writes = new Map<string, Promise<unknown>>();
   readonly views = new Set<MathfolioView>();
 
   async onload(): Promise<void> {
-    this.settings = { ...DEFAULTS, ...await this.loadData() };
+    const stored: unknown = await this.loadData();
+    this.settings = readSettings(stored);
     this.wasmUrl = URL.createObjectURL(new Blob([arrayBuffer(wasm)], { type: "application/wasm" }));
     this.workerUrl = URL.createObjectURL(new Blob([
       `const MATHFOLIO_WASM_URL = ${JSON.stringify(this.wasmUrl)};\n`, workerSource,
@@ -56,7 +55,7 @@ export default class MathfolioPlugin extends Plugin {
   }
 
   run(action: () => Promise<unknown>): void {
-    void action().catch(error => { console.error("Mathfolio", error); new Notice(`Mathfolio: ${String(error.message ?? error)}`, 9000); });
+    void action().catch(error => { console.error("Mathfolio", error); new Notice(`Mathfolio: ${errorMessage(error)}`, 9000); });
   }
 
   async exclusive<T>(path: string, action: () => Promise<T>): Promise<T> {
@@ -115,7 +114,7 @@ class MathfolioSettings extends PluginSettingTab {
     new Setting(this.containerEl).setName("Theme").addDropdown(dropdown => dropdown
       .addOptions({ follow_host: "Follow Obsidian", light: "Light", dark: "Dark", nord: "Nord" })
       .setValue(this.plugin.settings.theme).onChange(async value => {
-        this.plugin.settings.theme = value as ThemeMode;
+        this.plugin.settings.theme = themeMode(value);
         await this.plugin.saveData(this.plugin.settings);
         this.plugin.views.forEach(view => view.applyTheme());
       }));

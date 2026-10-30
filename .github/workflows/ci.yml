@@ -15,7 +15,6 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - uses: ./.github/actions/prepare-sdk
       - run: npm run check
       - run: npm test
       - run: npm run build
