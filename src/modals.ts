@@ -1,14 +1,23 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-import { App, Modal, Setting, FuzzySuggestModal, TFile } from "obsidian";
+import { App, Modal, Setting, FuzzySuggestModal, TFile, TFolder, type TAbstractFile } from "obsidian";
 
-export class WorksheetPicker extends FuzzySuggestModal<TFile> {
-  constructor(app: App, private readonly choose: (file: TFile) => void) {
+export class WorksheetPicker extends FuzzySuggestModal<TAbstractFile> {
+  constructor(app: App, private readonly choose: (file: TFile) => void,
+    private readonly folder: TFolder = app.vault.getRoot()) {
     super(app);
-    this.setPlaceholder("Open a Mathfolio worksheet");
+    this.setPlaceholder(`Open worksheet — ${folder.path || "/"}`);
   }
-  getItems(): TFile[] { return this.app.vault.getFiles().filter(file => /^(mathfolio|mathcraft|mcdx)$/i.test(file.extension)); }
-  getItemText(file: TFile): string { return file.path; }
-  onChooseItem(file: TFile): void { this.choose(file); }
+  getItems(): TAbstractFile[] {
+    const items = this.folder.children.filter(file => file instanceof TFolder || (file instanceof TFile && /^(mathfolio|mathcraft|mcdx)$/i.test(file.extension)));
+    return this.folder.parent ? [this.folder.parent, ...items] : items;
+  }
+  getItemText(file: TAbstractFile): string {
+    return file === this.folder.parent ? "../ (parent folder)" : file instanceof TFolder ? `${file.name}/` : file.name;
+  }
+  onChooseItem(file: TAbstractFile): void {
+    if (file instanceof TFolder) new WorksheetPicker(this.app, this.choose, file).open();
+    else if (file instanceof TFile) this.choose(file);
+  }
 }
 
 export function askPath(app: App, title: string, initial: string): Promise<string | null> {

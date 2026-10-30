@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.5 — Scoped file browsing
+
+- Browse worksheets one folder at a time instead of enumerating the Vault.
+- Limit recovery lookup to the recovery folder and clarify its command name.
+
 ## 0.1.4 — Release provenance
 
 - Attest main.js and styles.css with GitHub build provenance.

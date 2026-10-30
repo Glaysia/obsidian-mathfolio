@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-import { Plugin, TFile, normalizePath, PluginSettingTab, Notice, type SettingDefinitionItem } from "obsidian";
+import { Plugin, TFile, TFolder, normalizePath, PluginSettingTab, Notice, type SettingDefinitionItem } from "obsidian";
 import { DEFAULT_SETTINGS, readSettings, themeMode, errorMessage, type MathfolioSettingsData } from "./settings";
 import { wasm, workerSource, notices } from "mathfolio:assets";
 import { MathfolioView, VIEW_TYPE } from "./view";
@@ -31,7 +31,7 @@ export default class MathfolioPlugin extends Plugin {
     this.addCommand({ id: "new-worksheet", name: "Create worksheet", callback: () => this.run(() => this.createWorksheet()) });
     this.addCommand({ id: "open-worksheet", name: "Open worksheet", callback: () => this.pickWorksheet() });
     this.addCommand({ id: "show-licenses", name: "Show licenses and source", callback: () => new NoticesModal(this.app, notices).open() });
-    this.addCommand({ id: "recover-worksheet", name: "Open recovery folder", callback: () => this.run(() => this.showRecovery()) });
+    this.addCommand({ id: "recover-worksheet", name: "Open latest recovery copy", callback: () => this.run(() => this.showRecovery()) });
     for (const [id, name, action] of [
       ["save-worksheet", "Save worksheet", (view: MathfolioView) => view.save()],
       ["save-copy", "Save worksheet as a copy", (view: MathfolioView) => view.saveCopy()],
@@ -94,7 +94,8 @@ export default class MathfolioPlugin extends Plugin {
   }
 
   async showRecovery(): Promise<void> {
-    const files = this.app.vault.getFiles().filter(file => file.path.startsWith("Mathfolio Recovery/"));
+    const folder = this.app.vault.getAbstractFileByPath("Mathfolio Recovery");
+    const files = folder instanceof TFolder ? folder.children.filter((file): file is TFile => file instanceof TFile && file.extension === "mathfolio") : [];
     if (!files.length) { new Notice("No Mathfolio recovery copies."); return; }
     files.sort((a, b) => b.stat.mtime - a.stat.mtime);
     await this.openFile(files[0]);

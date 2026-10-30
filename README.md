@@ -26,13 +26,13 @@ Use **Mathfolio: Create worksheet** in the command palette or the formula ribbon
 
 **Save copy** creates a new `.mathfolio` file. **PDF** and MCDX export create new Vault files without silently replacing an existing export.
 
-If a save conflicts with an external edit or fails, the plugin keeps unsaved work in `Mathfolio Recovery/`. **Mathfolio: Open recovery folder** opens the newest recovery copy. The content check and Vault write do not provide an operating-system-level atomic lock against other applications.
+If a save conflicts with an external edit or fails, the plugin keeps unsaved work in `Mathfolio Recovery/`. **Mathfolio: Open latest recovery copy** opens the newest recovery copy. The content check and Vault write do not provide an operating-system-level atomic lock against other applications.
 
 ## Data access and privacy
 
 All calculation happens locally. The plugin reads and writes worksheets and exports selected by the user, stores settings in its plugin directory, and creates recovery copies in the Vault. It does not send worksheet contents or telemetry to a server.
 
-The worksheet picker searches Vault file paths when the user opens it. This is used to list supported worksheets; it does not read the content of every file. See the verification notes for tested behavior and limits.
+The worksheet picker lists only the folder selected by the user, with navigation into subfolders. Recovery lookup is limited to the recovery folder. The plugin does not enumerate every file in the Vault or read unrelated file contents. See the verification notes for tested behavior and limits.
 
 ## Development
 

@@ -13,7 +13,7 @@
 - **Save copy**는 원본을 유지한 새 `.mathfolio` 파일을 만든다. **PDF**는 Vault에 벡터 PDF를 만든다. 기존 파일을 자동으로 덮어쓰지 않는다.
 - 설정에서 Obsidian 테마 따르기, Light, Dark, Nord와 자동 저장 여부를 선택한다.
 
-외부 변경과 충돌하면 원본을 덮어쓰지 않는다. 미저장 내용은 Vault의 `Mathfolio Recovery/`에 `.mathfolio` 복구 사본으로 남긴다. **Mathfolio: Open recovery folder** 명령은 가장 최근 복구 사본을 연다. 파일 확인과 쓰기는 운영체제 수준의 원자적 비교·교환이 아니므로 동시 외부 쓰기를 완전히 잠그는 기능은 아니다.
+외부 변경과 충돌하면 원본을 덮어쓰지 않는다. 미저장 내용은 Vault의 `Mathfolio Recovery/`에 `.mathfolio` 복구 사본으로 남긴다. **Mathfolio: Open latest recovery copy** 명령은 가장 최근 복구 사본을 연다. 파일 확인과 쓰기는 운영체제 수준의 원자적 비교·교환이 아니므로 동시 외부 쓰기를 완전히 잠그는 기능은 아니다.
 
 ## 개발
 
