@@ -1,0 +1,22 @@
+name: Prepare pinned Mathfolio SDK
+description: Build the shared WASM SDK from the recorded source commit
+runs:
+  using: composite
+  steps:
+    - id: pin
+      shell: bash
+      run: echo "commit=$(node -p 'JSON.parse(require("fs").readFileSync("sdk.lock.json", "utf8")).sourceCommit')" >> "$GITHUB_OUTPUT"
+    - uses: actions/checkout@v6
+      with:
+        repository: Glaysia/mathfolio
+        ref: ${{ steps.pin.outputs.commit }}
+        path: .sdk-source
+    - shell: bash
+      run: |
+        rustup toolchain install 1.99.0 --profile minimal --target wasm32-unknown-unknown
+        cargo +1.99.0 install wasm-bindgen-cli --version 0.2.129 --locked
+        npm ci --prefix .sdk-source/web
+        cd .sdk-source
+        python3 scripts/build-wasm.py
+    - shell: bash
+      run: npm run sdk:link -- "$GITHUB_WORKSPACE/.sdk-source"

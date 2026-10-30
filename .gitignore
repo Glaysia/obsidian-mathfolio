@@ -11,3 +11,8 @@ dist/
 .env
 .env.*
 !.env.example
+build-info.json
+.local-backups/
+artifacts/
+
+.sdk-source/

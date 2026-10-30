@@ -1,41 +1,44 @@
 # 개발 계획
 
-## 0. 초기 구성 — 이번 범위
+## 0. 초기 구성
 
 - [x] 별도 Git 리포와 TypeScript 도구 구성
 - [x] README, AGPL-3.0-only LICENSE와 고지
 - [x] 로컬 SDK 연결 도구와 배포 SDK 출처 기록
 - [x] 메타데이터 검사 CI와 GitHub draft release 워크플로
-- [ ] 플러그인 메인 구현 — 이번 작업에서는 시작하지 않음
+- [x] 사용자 후속 요청에 따라 TypeScript 호스트 구현 및 b2 설치
+- [x] Linux 실제 Obsidian 편집·계산·저장·재열기·PDF·충돌 복구 확인
+- [x] 사용자 실사용 확인. 상세 범위는 docs/VERIFICATION.md 참고
 
 ## 1. SDK 배포 기준 확정
 
-- Mathfolio에서 이름 변경을 반영한 0.1.1 이상 SDK를 GitHub Release에 게시한다. 원본 리포의 별도 작업이다.
+- [x] 현재는 sdk.lock.json의 고정 원본 커밋을 로컬/CI에서 빌드하고 WASM SHA-256을 대조한다.
+- [ ] Mathfolio에서 이름 변경을 반영한 0.1.1 이상 SDK를 GitHub Release에 게시한다. 원본 리포의 별도 작업이다.
 - 생성 패키지명 `@mathfolio/wasm-sdk`, 버전, 프로토콜, 원본 커밋을 확인한다.
 - 플러그인의 package.json에 해당 릴리스 tarball URL을 의존성으로 추가한다. latest, 브랜치 HEAD, 개발자 절대 경로는 배포 의존성으로 사용하지 않는다.
 - package-lock.json 및 sdk.lock.json에 실제 URL·태그·커밋·SHA-256을 고정한다. CI에서 다운로드 파일의 SHA-256을 검사한다.
 - JS glue·WASM·Worker·글꼴이 모두 같은 SDK 버전인지 확인한다. 라이선스 원문과 NOTICE를 배포에 보존한다.
 
-## 2. 최소 호스트 연결
+## 2. 최소 호스트 연결 — 구현, Linux 확인
 
 - TypeScript `src/main.ts`에 Obsidian Plugin 진입점과 전용 파일 뷰를 작성한다.
 - SDK Canvas mount와 탭별 세션을 연결한다. 탭 숨김에는 setActive(false), 닫힘에는 구독 해제와 dispose를 호출한다.
 - 지원 문서 확장자는 원본 포맷과 Obsidian 파일 처리 계약을 확인한 뒤 확정한다.
 - 문서 모델·계산·수식 입력은 Rust SDK를 그대로 사용한다.
 
-## 3. 저장과 사용자 데이터
+## 3. 저장과 사용자 데이터 — 구현, 주요 경로 확인
 
 - Vault API로 바이너리 문서를 열고 저장한다. 저장 직전에 외부 변경을 검사한다.
 - prepareSave → 실제 Vault 쓰기 성공 → acknowledgeSave 순서를 지킨다.
 - 저장 실패, 저장 중 재편집, 외부 변경 충돌, dirty 문서 교체, 이름 변경·삭제, 종료 시 미저장 처리와 복구 정책을 검증한다.
 - 문서를 열거나 저장 결과를 표시하는 동작이 계산을 자동 실행하지 않도록 한다.
 
-## 4. 자산·입력·테마
+## 4. 자산·입력·테마 — 내장 번들 및 테마 구현
 
-- 표준 설치 파일만으로 SDK 자산을 공급한다. WASM bytes와 Worker 코드를 main.js에 포함하는 방식을 우선 검토한다.
-- SDK 기본 Worker의 상대 import를 그대로 두지 않는다. Worker에서도 동일한 glue와 WASM을 해석할 수 있도록 번들링한다.
+- [x] 표준 설치 파일만으로 SDK 자산을 공급한다. WASM·Worker·한글 글꼴·고지를 main.js에 내장했다.
+- [x] 계산 Worker의 glue를 번들링하고 main.js에 내장한 동일 WASM의 Blob URL로 초기화한다.
 - Obsidian 실제 CSP·Worker·WebGL·리소스 URI에서 동작을 검증한다. CDN·로컬 서버·native helper를 실행 의존성으로 두지 않는다.
-- 호스트 테마 CSS 변수를 SDK 색 계약으로 변환하고 변경을 반영한다.
+- [x] 호스트 테마 CSS 변수를 정수 RGBA로 변환하고 변경을 반영한다.
 - 한글 물리 IME, 클립보드, 포커스, F5/Ctrl+F5 등 호스트 단축키 충돌을 실제 앱에서 확인한다.
 
 ## 5. 배포 전 검증

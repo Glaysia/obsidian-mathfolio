@@ -1,4 +1,4 @@
 {
   "ready": false,
-  "reason": "Scaffold only. Plugin implementation, released SDK pin, asset packaging and real Obsidian acceptance are pending."
+  "reason": "Linux development build installed and exercised in b2. Released SDK pin, Windows and remaining acceptance checks are pending."
 }

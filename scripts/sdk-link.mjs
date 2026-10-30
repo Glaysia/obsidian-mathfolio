@@ -1,5 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, symlinkSync, lstatSync, unlinkSync } from "node:fs";
 import { resolve, join } from "node:path";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import assert from "node:assert/strict";
 
 const source = resolve(process.argv[2] ?? "/home/harry/Projects/RustProjects/mathfolio");
@@ -7,7 +9,11 @@ const sdk = join(source, "dist", "wasm-sdk");
 assert.ok(existsSync(join(sdk, "package.json")), `SDK not built: ${sdk}. Run scripts/build-wasm.py in Mathfolio first.`);
 const pkg = JSON.parse(readFileSync(join(sdk, "package.json"), "utf8"));
 assert.equal(pkg.name, "@mathfolio/wasm-sdk");
-assert.equal(pkg.version, JSON.parse(readFileSync("sdk.lock.json", "utf8")).version);
+const pin = JSON.parse(readFileSync("sdk.lock.json", "utf8"));
+assert.equal(pkg.version, pin.version);
+assert.equal(execFileSync("git", ["-C", source, "rev-parse", "HEAD"], { encoding: "utf8" }).trim(), pin.sourceCommit, "SDK source commit does not match sdk.lock.json");
+const digest = createHash("sha256").update(readFileSync(join(sdk, "mathfolio_bg.wasm"))).digest("hex");
+assert.equal(digest, pin.wasmSha256, "SDK WASM hash differs from the tested local build");
 for (const file of ["sdk.js", "sdk.d.ts", "mathfolio.js", "mathfolio_bg.wasm", "worker.js", "LICENSE", "NOTICE.md"]) {
   assert.ok(existsSync(join(sdk, file)), `SDK file missing: ${file}`);
 }

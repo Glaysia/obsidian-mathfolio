@@ -1,32 +1,23 @@
 # Mathfolio for Obsidian
 
-[Mathfolio](https://github.com/Glaysia/mathfolio)의 Rust 워크시트 편집기와 계산 엔진을 Obsidian에서 사용하는 TypeScript 플러그인 프로젝트다.
+[Mathfolio](https://github.com/Glaysia/mathfolio)의 Rust 워크시트 편집기와 계산 엔진을 Obsidian에서 사용하는 TypeScript 플러그인이다.
 
-**현재는 리포 초기 구성 단계다.** 플러그인 메인 코드, 파일 편집 기능, 설치 가능한 릴리스는 아직 없다. 커뮤니티 등록도 하지 않았다.
+현재 개발 빌드를 b2 Vault에 설치하고 **Linux / Obsidian 1.14.5에서 편집·계산·저장·재열기와 PDF 출력을 확인**했다. GitHub 정식 릴리스와 커뮤니티 등록은 아직 하지 않았다. 검증 범위는 [검증 기록](docs/VERIFICATION.md)을 따른다.
 
-## 구성
+## 사용
 
-| 항목 | 값 |
-| --- | --- |
-| GitHub 리포 | `Glaysia/obsidian-mathfolio` |
-| 플러그인 이름 / ID | `Mathfolio` / `mathfolio` |
-| 구현 언어 | TypeScript |
-| 공통 편집기·계산 엔진 | Mathfolio WASM SDK |
-| 라이선스 | `AGPL-3.0-only` |
-| 초기 검증 대상 | Obsidian Desktop / Windows·Linux |
+- 명령 팔레트의 **Mathfolio: Create worksheet** 또는 리본의 수식 아이콘으로 `.mathfolio` 파일을 만든다.
+- `.mathfolio`, 이전 `.mathcraft`, `.mcdx` 파일을 열면 공통 Rust 편집기를 표시한다.
+- 빈 곳을 클릭해 수식을 입력한다. 기존 Mathfolio 단축키와 도구 모음을 사용한다.
+- **Save**로 저장하고 **Calculate**로 전체 계산한다. 기본 자동 저장은 편집이 멈춘 뒤 약 0.9초 후 실행된다.
+- **Save copy**는 원본을 유지한 새 `.mathfolio` 파일을 만든다. **PDF**는 Vault에 벡터 PDF를 만든다. 기존 파일을 자동으로 덮어쓰지 않는다.
+- 설정에서 Obsidian 테마 따르기, Light, Dark, Nord와 자동 저장 여부를 선택한다.
 
-Rust 프로젝트가 편집기·문서 모델·계산·Undo/Redo·PDF 출력을 소유한다. 이 리포는 Vault 파일 IO, 뷰 수명, 저장 충돌, 테마, 설정과 단축키 중재를 담당한다. 별도 TypeScript 수식 엔진은 만들지 않는다.
+외부 변경과 충돌하면 원본을 덮어쓰지 않는다. 미저장 내용은 Vault의 `Mathfolio Recovery/`에 `.mathfolio` 복구 사본으로 남긴다. **Mathfolio: Open recovery folder** 명령은 가장 최근 복구 사본을 연다. 파일 확인과 쓰기는 운영체제 수준의 원자적 비교·교환이 아니므로 동시 외부 쓰기를 완전히 잠그는 기능은 아니다.
 
-## 개발 준비
+## 개발
 
-Node.js 24와 npm을 사용한다.
-
-```sh
-npm ci
-npm run check
-```
-
-로컬 Mathfolio 개발 체크아웃은 `/home/harry/Projects/RustProjects/mathfolio`다. 먼저 해당 리포의 [SDK 빌드 안내](https://github.com/Glaysia/mathfolio/blob/main/docs/WASM-SDK.md)에 따라 SDK를 생성한다.
+Node.js 24와 npm을 사용한다. 로컬 SDK 소스는 `/home/harry/Projects/RustProjects/mathfolio`다.
 
 ```sh
 cd /home/harry/Projects/RustProjects/mathfolio
@@ -34,23 +25,39 @@ npm ci --prefix web
 python3 scripts/build-wasm.py
 
 cd /home/harry/Projects/WebstormProjects/obsidian-mathfolio
+npm ci
 npm run sdk:link
+npm run check
+npm test
+npm run build
+npm run install:vault -- /home/harry/Documents/b2
 ```
 
-다른 위치에서는 `npm run sdk:link -- /absolute/path/to/mathfolio`를 사용한다. 이 명령은 생성된 SDK를 `node_modules/@mathfolio/wasm-sdk`에 연결한다. 원본 소스를 복사하거나 서브모듈로 추가하지 않는다. `npm ci` 후에는 다시 연결한다. 현재 지정한 체크아웃에는 SDK 산출물이 없으므로 SDK 빌드가 먼저 필요하다.
+Rust·wasm-bindgen 준비는 원본의 [SDK 빌드 안내](https://github.com/Glaysia/mathfolio/blob/main/docs/WASM-SDK.md)를 따른다. 다른 체크아웃은 `npm run sdk:link -- /absolute/path/to/mathfolio`로 연결한다. 이 명령은 SDK 버전·원본 커밋·WASM SHA-256을 `sdk.lock.json`과 대조한다. SDK를 갱신할 때는 pin과 검증 기록을 함께 갱신한다. `npm ci` 후에는 링크를 다시 만든다.
 
-`npm run check`는 초기 메타데이터와 도구 스크립트를 확인한다. `src/main.ts`가 생기면 TypeScript 검사도 실행한다. `npm run build`는 메인 코드가 없는 현재 단계에서는 의도적으로 실패한다.
+설치 도구는 기존 플러그인 파일과 활성 플러그인 목록을 리포의 `.local-backups/`에 보존한다. 실행 중인 Obsidian에서는 커뮤니티 플러그인에서 Mathfolio를 다시 켜거나, 활성화된 Obsidian CLI의 `obsidian vault=b2 plugin:reload id=mathfolio`로 새 빌드를 적용한다.
 
-## SDK 의존성과 릴리스
+## SDK와 배포
 
-개발에는 로컬 SDK를 사용하고, 배포에는 Mathfolio의 **고정된 GitHub Release SDK tarball**을 사용한다. npm 레지스트리 게시를 필수로 두지 않는다. SDK 릴리스 자산을 `package.json` 의존성 URL로 지정하고 `package-lock.json` 및 `sdk.lock.json`에 버전·출처·SHA-256을 고정할 계획이다.
+| 항목 | 값 |
+| --- | --- |
+| GitHub 리포 | `Glaysia/obsidian-mathfolio` |
+| 플러그인 이름 / ID | `Mathfolio` / `mathfolio` |
+| 플러그인 개발 버전 | `0.1.0` |
+| SDK | `@mathfolio/wasm-sdk` 0.1.1 / 프로토콜 1 |
+| 라이선스 | `AGPL-3.0-only` |
+| 초기 대상 | Obsidian Desktop / Linux, Windows는 후속 검증 |
 
-2026-10-30 확인 기준 로컬 SDK는 `@mathfolio/wasm-sdk` 0.1.1 / 프로토콜 1이다. GitHub의 기존 `v0.1.0`에는 이름 변경 전 `mathcraft-wasm-sdk-0.1.0.tar.gz`가 있다. **Mathfolio 0.1.1 SDK 릴리스는 아직 확인되지 않아 배포 의존성을 연결하지 않았다.** `sdk.lock.json`은 이 미완료 상태를 명시한다.
+Rust 프로젝트가 편집기·문서 모델·계산·Undo/Redo·PDF 출력을 소유한다. 이 리포는 Vault IO, 저장 충돌, 뷰 수명, 테마, 설정과 단축키 중재를 담당한다.
 
-Obsidian 설치에는 `main.js`, `manifest.json`, 선택적 `styles.css`를 사용한다. SDK의 WASM·Worker·글꼴은 이 설치 경로에서 동작하도록 번들에 포함해야 한다. 별도 ZIP이나 `.wasm` 첨부만으로 설치가 완성된다고 가정하지 않는다. 사용자에게 Rust·Node·Mathfolio 독립판 설치를 요구하지 않는다.
+현재 SDK는 고정된 원본 커밋에서 빌드한다. GitHub CI도 같은 커밋과 도구 버전으로 SDK를 생성하고 WASM 해시를 검사한다. 원본의 이름 변경 후 SDK 릴리스 자산이 게시되면 고정 tarball 의존성으로 전환할 계획이다. 서브모듈이나 원본 소스 복사본은 관리하지 않는다.
 
-[개발 계획](PLAN.md) · [릴리스 절차](docs/RELEASING.md) · [공식 플러그인 제출 안내](https://docs.obsidian.md/Plugins/Releasing/Submit%20your%20plugin)
+빌드 결과는 `main.js`, `manifest.json`, `styles.css`다. **WASM·Worker·한글 글꼴·라이선스 고지를 main.js에 포함**하므로 사용자는 Rust·Node·Mathfolio 독립판을 따로 설치하지 않는다. CDN이나 로컬 서버도 필요하지 않다. 포함된 고지는 플러그인 설정에서 확인할 수 있다.
+
+GitHub 릴리스는 manifest 버전과 정확히 같은 `x.y.z` 태그로 draft를 만든다. Windows·물리 IME·종료 복구 등 남은 검증과 SDK 릴리스 pin이 완료되기 전에는 공개 릴리스를 만들지 않는다.
+
+[개발 계획](PLAN.md) · [릴리스 절차](docs/RELEASING.md) · [검증 기록](docs/VERIFICATION.md)
 
 ## 라이선스
 
-이 리포의 자체 소스·스크립트·문서는 Mathfolio와 동일한 **GNU AGPL v3 only (`AGPL-3.0-only`)**로 제공한다. 전문은 [LICENSE](LICENSE), 배포 시 보존할 고지는 [NOTICE.md](NOTICE.md)를 따른다. SDK에 포함된 제3자 글꼴·라이브러리는 각자의 라이선스를 유지한다.
+자체 소스·스크립트·문서는 Mathfolio와 동일한 **GNU AGPL v3 only (`AGPL-3.0-only`)**로 제공한다. 전문은 [LICENSE](LICENSE), 고지는 [NOTICE.md](NOTICE.md)를 따른다. SDK의 제3자 글꼴·라이브러리는 각자의 라이선스를 유지한다.

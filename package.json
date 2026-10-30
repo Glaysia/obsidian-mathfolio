@@ -14,11 +14,13 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "check": "node scripts/check.mjs && node --check scripts/build.mjs && node --check scripts/sdk-link.mjs && node --check scripts/version.mjs",
+    "check": "node scripts/check.mjs && node --check scripts/build.mjs && node --check scripts/sdk-link.mjs && node --check scripts/version.mjs && node --check scripts/install.mjs",
     "build": "npm run check && node scripts/build.mjs",
     "check:release": "node scripts/check.mjs --release",
     "sdk:link": "node scripts/sdk-link.mjs",
-    "version": "node scripts/version.mjs"
+    "version": "node scripts/version.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "install:vault": "node scripts/install.mjs"
   },
   "devDependencies": {
     "@types/node": "24.19.2",
