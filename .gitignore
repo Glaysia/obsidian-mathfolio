@@ -16,3 +16,5 @@ build-info.json
 artifacts/
 
 .sdk-source/
+.build/
+styles.css

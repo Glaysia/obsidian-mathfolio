@@ -18,7 +18,7 @@ The worksheet editor, document state, history, calculation and PDF generation re
 
 Download `main.js`, `manifest.json` and `styles.css` from a [published release](https://github.com/Glaysia/obsidian-mathfolio/releases). Put them in `<vault>/.obsidian/plugins/mathfolio/` and enable Mathfolio in Community plugins. Back up existing plugin files before replacing them. Community directory registration is separate from GitHub releases.
 
-The plugin includes the editor, WASM, calculation Worker, Korean font and license notices. It does not require a Mathfolio desktop installation, Rust, Node.js, a local server or a CDN on the user's machine.
+The plugin includes the editor, compressed WASM/calculation Worker and license notices in main.js, plus Korean font data in styles.css. Each installed file is below 5 MB. The desktop runtime decompresses packaged assets locally. It does not require a Mathfolio desktop installation, Rust, Node.js, a local server or a CDN on the user's machine.
 
 ## Usage
 

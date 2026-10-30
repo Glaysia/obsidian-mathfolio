@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.6 — Offline bundle size
+
+- Optimize and Brotli-compress the packaged WASM/Worker payload with printable binary encoding.
+- Keep Korean font data in generated styles.css; each installed file is below 5,000,000 bytes.
+- Decode locally through the desktop runtime; no server or CDN dependency.
+- Add settings, Worker protocol and binary transport regression tests.
+
 ## 0.1.5 — Scoped file browsing
 
 - Browse worksheets one folder at a time instead of enumerating the Vault.

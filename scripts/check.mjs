@@ -45,6 +45,9 @@ if (process.argv.includes("--release")) {
   const info = read("build-info.json");
   assert.deepEqual(info.sdk, sdk, "Bundle SDK provenance differs from the release pin");
   assert.ok(existsSync("src/main.ts") && existsSync("main.js"), "Plugin implementation/build is missing");
+  for (const file of ["main.js", "styles.css"]) {
+    assert.ok(readFileSync(file).length < 5_000_000, `${file} exceeds the Sync Standard file limit`);
+  }
   const tag = process.env.GITHUB_REF_TYPE === "tag" ? process.env.GITHUB_REF_NAME : undefined;
   if (tag) assert.equal(tag, manifest.version, "Tag must match manifest.version without a v prefix");
 }
