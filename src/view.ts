@@ -15,7 +15,7 @@ export class MathfolioView extends EditableFileView {
   private status?: HTMLElement;
   private expected = "";
   private loadedFile?: TFile;
-  private timer?: ReturnType<typeof setTimeout>;
+  private timer?: number;
   private lastRevision = -1;
   private closing?: Promise<void>;
   private saveQueue: Promise<void> = Promise.resolve();
@@ -60,7 +60,7 @@ export class MathfolioView extends EditableFileView {
       if (event.key === "F5") { event.preventDefault(); event.stopPropagation(); this.command(event.ctrlKey ? "calculate_worksheet" : "calculate_now"); }
     }, { capture: true });
     this.registerDomEvent(this.contentEl.ownerDocument.defaultView!, "beforeunload", event => {
-      if (this.editor?.state().dirty) { event.preventDefault(); event.returnValue = "Mathfolio has unsaved changes."; }
+      if (this.editor?.state().dirty) { event.preventDefault(); }
     });
     const observer = new ResizeObserver(() => this.updateActive());
     observer.observe(stage);
@@ -111,13 +111,13 @@ export class MathfolioView extends EditableFileView {
     this.contentEl.toggleClass("mathfolio-dirty", state.dirty);
     if (state.dirty && state.revision !== this.lastRevision) {
       this.lastRevision = state.revision;
-      clearTimeout(this.timer);
-      if (this.plugin.settings.autosave && !this.conflict) this.timer = setTimeout(() => this.plugin.run(() => this.save(false)), 900);
+      this.contentEl.win.clearTimeout(this.timer);
+      if (this.plugin.settings.autosave && !this.conflict) this.timer = this.contentEl.win.setTimeout(() => this.plugin.run(() => this.save(false)), 900);
     }
   }
 
   save(force = true): Promise<void> {
-    clearTimeout(this.timer);
+    this.contentEl.win.clearTimeout(this.timer);
     const next = this.saveQueue.catch(() => {}).then(async () => {
       const editor = this.editor;
       const file = this.loadedFile;
@@ -212,11 +212,11 @@ export class MathfolioView extends EditableFileView {
       console.error("Mathfolio save failed; recovery retained", error);
     }
   }
-  async onUnloadFile(): Promise<void> { clearTimeout(this.timer); await this.saveOrRecover(); }
+  async onUnloadFile(): Promise<void> { this.contentEl.win.clearTimeout(this.timer); await this.saveOrRecover(); }
   async onClose(): Promise<void> { await this.finish(); }
   finish(): Promise<void> {
     if (this.closing) return this.closing;
-    clearTimeout(this.timer);
+    this.contentEl.win.clearTimeout(this.timer);
     this.closing = (async () => {
       await this.mounted?.catch(() => {});
       await this.saveOrRecover();

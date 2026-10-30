@@ -8,4 +8,5 @@ export default defineConfig(
     tsconfigRootDir: import.meta.dirname, extraFileExtensions: [".json"],
   } } },
   ...obsidianmd.configs.recommended,
+  { rules: { "obsidianmd/ui/sentence-case": ["warn", { brands: ["Mathfolio"] }] } },
 );

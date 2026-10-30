@@ -1,4 +1,4 @@
-.mathfolio-view { display: flex; flex-direction: column; padding: 0 !important; overflow: hidden; }
+.workspace-leaf-content[data-type="mathfolio"] .view-content.mathfolio-view { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
 .mathfolio-host-bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 6px 10px; border-bottom: 1px solid var(--background-modifier-border); background: var(--background-secondary); flex: 0 0 auto; }
 .mathfolio-host-bar button { font-size: var(--font-ui-small); height: 26px; }
 .mathfolio-host-status { margin-inline-start: auto; font-size: var(--font-ui-smaller); color: var(--text-muted); }

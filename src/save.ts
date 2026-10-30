@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 export function arrayBuffer(bytes: Uint8Array): ArrayBuffer {
-  return bytes.slice().buffer as ArrayBuffer;
+  return bytes.slice().buffer;
 }
 
 export async function fingerprint(bytes: ArrayBuffer | Uint8Array): Promise<string> {

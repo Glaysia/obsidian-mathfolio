@@ -6,13 +6,13 @@ export function hostTheme(element: HTMLElement): HostTheme {
   const dark = doc.body.classList.contains("theme-dark");
   const style = doc.defaultView!.getComputedStyle(doc.body);
   const color = (variable: string, fallback: string): RGBA => {
-    const probe = doc.createElement("span");
+    const probe = element.createSpan();
     probe.style.color = style.getPropertyValue(variable).trim() || fallback;
     element.append(probe);
     const resolved = doc.defaultView!.getComputedStyle(probe).color;
     probe.remove();
     // Canvas resolves modern CSS color spaces and composites alpha to integer sRGB bytes.
-    const canvas = doc.createElement("canvas");
+    const canvas = element.createEl("canvas");
     canvas.width = canvas.height = 1;
     const context = canvas.getContext("2d")!;
     context.fillStyle = dark ? "#1e1e1e" : "#ffffff";
@@ -20,6 +20,7 @@ export function hostTheme(element: HTMLElement): HostTheme {
     context.fillStyle = resolved;
     context.fillRect(0, 0, 1, 1);
     const [r, g, b] = context.getImageData(0, 0, 1, 1).data;
+    canvas.remove();
     return [r, g, b, 255];
   };
   return {

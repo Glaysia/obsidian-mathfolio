@@ -1,6 +1,6 @@
 {
   "name": "obsidian-mathfolio",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Mathfolio worksheet editor integration for Obsidian.",
   "type": "module",
@@ -41,8 +41,7 @@
     "@mathfolio/wasm-sdk": "https://github.com/Glaysia/mathfolio/releases/download/v0.1.1/mathfolio-wasm-sdk-0.1.1.tar.gz"
   },
   "overrides": {
-    "eslint-plugin-obsidianmd": {
-      "obsidian": "$obsidian"
-    }
+    "obsidian": "$obsidian",
+    "moment": "2.31.0"
   }
 }

@@ -21,7 +21,7 @@ export function askPath(app: App, title: string, initial: string): Promise<strin
         const input = new Setting(this.contentEl).setName("Vault path").addText(text => {
           text.setValue(initial).onChange(next => value = next);
           text.inputEl.addEventListener("keydown", event => { if (event.key === "Enter") submit(); });
-          setTimeout(() => { text.inputEl.focus(); text.inputEl.select(); }, 0);
+          this.contentEl.win.setTimeout(() => { text.inputEl.focus(); text.inputEl.select(); }, 0);
         });
         const submit = () => { if (value.trim()) { this.submitted = true; resolve(value.trim()); this.close(); } };
         new Setting(this.contentEl).addButton(button => button.setButtonText("Cancel").onClick(() => this.close()))

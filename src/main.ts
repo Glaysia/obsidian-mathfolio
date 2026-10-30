@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-import { Plugin, TFile, normalizePath, PluginSettingTab, Setting, Notice } from "obsidian";
+import { Plugin, TFile, normalizePath, PluginSettingTab, Notice, type SettingDefinitionItem } from "obsidian";
 import { DEFAULT_SETTINGS, readSettings, themeMode, errorMessage, type MathfolioSettingsData } from "./settings";
 import { wasm, workerSource, notices } from "mathfolio:assets";
 import { MathfolioView, VIEW_TYPE } from "./view";
@@ -109,21 +109,20 @@ export default class MathfolioPlugin extends Plugin {
 
 class MathfolioSettings extends PluginSettingTab {
   constructor(private readonly plugin: MathfolioPlugin) { super(plugin.app, plugin); }
-  display(): void {
-    this.containerEl.empty();
-    new Setting(this.containerEl).setName("Theme").addDropdown(dropdown => dropdown
-      .addOptions({ follow_host: "Follow Obsidian", light: "Light", dark: "Dark", nord: "Nord" })
-      .setValue(this.plugin.settings.theme).onChange(async value => {
-        this.plugin.settings.theme = themeMode(value);
-        await this.plugin.saveData(this.plugin.settings);
-        this.plugin.views.forEach(view => view.applyTheme());
-      }));
-    new Setting(this.containerEl).setName("Auto-save").setDesc("Save after editing pauses. External changes are kept as conflicts.")
-      .addToggle(toggle => toggle.setValue(this.plugin.settings.autosave).onChange(async value => {
-        this.plugin.settings.autosave = value;
-        await this.plugin.saveData(this.plugin.settings);
-      }));
-    new Setting(this.containerEl).setName("Licenses and source").addButton(button => button.setButtonText("View")
-      .onClick(() => new NoticesModal(this.app, notices).open()));
+  getSettingDefinitions(): SettingDefinitionItem[] {
+    return [
+      { name: "Theme", control: { type: "dropdown", key: "theme", defaultValue: "follow_host",
+        options: { follow_host: "Follow Obsidian", light: "Light", dark: "Dark", nord: "Nord" } } },
+      { name: "Auto-save", desc: "Save after editing pauses. External changes are kept as conflicts.",
+        control: { type: "toggle", key: "autosave", defaultValue: true } },
+      { name: "Licenses and source", action: () => new NoticesModal(this.app, notices).open() },
+    ];
+  }
+  async setControlValue(key: string, value: unknown): Promise<void> {
+    if (key === "theme") this.plugin.settings.theme = themeMode(value);
+    else if (key === "autosave" && typeof value === "boolean") this.plugin.settings.autosave = value;
+    else return;
+    await this.plugin.saveData(this.plugin.settings);
+    if (key === "theme") this.plugin.views.forEach(view => view.applyTheme());
   }
 }
