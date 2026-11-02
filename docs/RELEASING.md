@@ -1,10 +1,6 @@
 # Release procedure
 
-Plugin and SDK versions are independent. The current development plugin uses Mathfolio SDK 0.1.2-rc2 / protocol 1; public 0.1.7 uses SDK 0.1.1.
-
-## Current development state
-
-0.1.8 currently uses a local, hash-pinned Mathfolio SDK 0.1.2-rc2 archive. Run `node scripts/sdk-prepare.mjs /path/to/mathfolio` before npm ci. The source checkout and archive must exactly match sdk.lock.json. Public release is disabled: publish the SDK archive, switch to a fixed release URL, review the development-tool audit advisory and complete final CI before tagging. No 0.1.8 tag or release has been created.
+Plugin and SDK versions are independent. Plugin 0.1.8 uses the released Mathfolio SDK 0.1.2 / protocol 1, with URL, source commit and hashes pinned in sdk.lock.json.
 
 ## Pinned SDK
 
@@ -20,27 +16,29 @@ Local `sdk:build` and `sdk:link` are for SDK development. Updating the distribut
 npm ci
 npm run check
 npm run lint
-npm audit --audit-level=moderate
+npm run audit
 npm test
 npm run build
 npm run check:release
 ```
 
+The audit command enforces runtime audit and all unreviewed moderate/high/critical findings. Its one source-verified development-only legacy advisory assessment is documented in [DEPENDENCY-AUDIT.md](DEPENDENCY-AUDIT.md). Raw npm audit findings remain visible.
+
 Packaging changes require actual Obsidian WASM/Worker execution from only main.js, manifest.json and styles.css. Record the environment, results and untested platforms in VERIFICATION.md.
 
-Use `npm version 0.1.7 --no-git-tag-version` to update package.json, lockfile, manifest.json and versions.json together. Commit the reviewed changes. Add the corresponding docs/releases/0.1.7.md before tagging.
+Use `npm version 0.1.8 --no-git-tag-version` to update package.json, lockfile, manifest.json and versions.json together. Commit the reviewed changes. Add the corresponding docs/releases/0.1.8.md before tagging.
 
 ## Final tag and CI publication
 
 ```sh
 git push origin main
-git tag -a 0.1.7 -m "Mathfolio for Obsidian 0.1.7"
-git push origin 0.1.7
+git tag -a 0.1.8 -m "Mathfolio for Obsidian 0.1.8"
+git push origin 0.1.8
 ```
 
-The tag must exactly match manifest.version, without a v prefix. For this update, 0.1.1 through 0.1.6 are sequential source commits only; only 0.1.7 receives a plugin tag and release.
+The tag must exactly match manifest.version, without a v prefix. 0.1.8 is the next public plugin version after 0.1.7.
 
-The release workflow installs locked dependencies, runs checks/lint/audit/tests, builds and checks the file size limits. It creates GitHub artifact attestations for main.js and styles.css. It then creates a draft containing exactly main.js, manifest.json and styles.css, checks the tag and asset names, and publishes the verified draft in CI. Checksums are retained in the workflow summary, not attached as an unsupported extra asset.
+The release workflow installs locked dependencies, runs checks/lint/audit/tests, builds and checks the file size limits. It creates GitHub artifact attestations for main.js and styles.css. It then creates a draft containing exactly main.js, manifest.json and styles.css, checks the tag and asset names, downloads and byte-compares the three draft assets, and publishes the verified draft in CI. Checksums are retained in the workflow summary, not attached as an unsupported extra asset.
 
 After publication, download the three release files, check manifest.version and asset sizes, and verify provenance:
 

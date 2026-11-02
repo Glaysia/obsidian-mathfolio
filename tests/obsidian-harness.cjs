@@ -37,6 +37,8 @@ module.exports = class MathfolioQA extends Plugin {
       const view=()=>[...plugin.views].find(v=>v.file?.path===path&&v.editor);
       await until(()=>!!view(),'WASM view mount');
       let v=view();
+      const assets=await plugin.assets(v.contentEl);
+      report.wasmSha256=[...new Uint8Array(await crypto.subtle.digest('SHA-256',assets.wasm))].map(b=>b.toString(16).padStart(2,'0')).join('');
       check(v.editor.state().worker_count===0,'open does not calculate');
       v.command('calculate_worksheet');
       await until(()=>!v.editor.state().calculating&&v.editor.state().worker_count===1,'calculation Worker');

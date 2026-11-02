@@ -1,4 +1,4 @@
 {
-  "ready": false,
-  "reason": "0.1.8 development is locally verified on Linux Desktop and PC web Obsidian. Public release was not requested. SDK 0.1.2-rc2 still uses a local pinned archive; publication also requires reviewing the tooling-only minimatch audit advisory."
+  "ready": true,
+  "reason": "SDK 0.1.2 is pinned to its public release. The three-file build passed 17 regression tests and 13 integration checks each in isolated Linux Desktop and PC web Obsidian. Runtime audit is clean; the sole dev-only legacy minimatch advisory is source-verified and narrowly reviewed in docs/DEPENDENCY-AUDIT.md. Public publication is authorized and gated by tag CI."
 }

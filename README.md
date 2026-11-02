@@ -2,7 +2,7 @@
 
 Edit and calculate mathematical worksheets in Obsidian with the shared [Mathfolio](https://github.com/Glaysia/mathfolio) Rust editor and calculation engine.
 
-**0.1.8 development:** browser-compatible asset loading with Mathfolio SDK 0.1.2-rc2. The public release remains 0.1.7.
+**0.1.8:** PC browser web-session compatibility with the released Mathfolio SDK 0.1.2.
 
 [한국어 안내](README.ko.md) · [Development plan](PLAN.md) · [Verification](docs/VERIFICATION.md)
 
@@ -38,17 +38,18 @@ The worksheet picker lists only the folder selected by the user, with navigation
 
 ## Development
 
-Use Node.js 24 and npm. For the current development SDK, first run `node scripts/sdk-prepare.mjs /path/to/mathfolio` against the pinned source checkout containing the tested SDK archive in dist/:
+Use Node.js 24 and npm:
 
 ```sh
 npm ci
 npm run check
 npm run lint
+npm run audit
 npm test
 npm run build
 ```
 
-`npm ci` installs the exact SDK archive recorded in package-lock.json. Version 0.1.8 currently uses a local SDK 0.1.2-rc2 development archive prepared by sdk-prepare; sdk.lock.json records its source commit, archive SHA-256 and WASM SHA-256. A public plugin release requires publishing the SDK and changing the dependency to its fixed release URL first.
+`npm ci` installs Mathfolio SDK 0.1.2 from its pinned GitHub release URL. package-lock.json fixes package integrity; sdk.lock.json records the source commit, release tag, archive SHA-256 and WASM SHA-256. No local SDK checkout is needed. The development-tool audit review is documented in [DEPENDENCY-AUDIT.md](docs/DEPENDENCY-AUDIT.md).
 
 The local SDK source checkout is `/home/harry/Projects/RustProjects/mathfolio`. SDK build/link tools remain available for SDK development. A local link must match the recorded source and WASM hash; distribution builds use the locked package.
 

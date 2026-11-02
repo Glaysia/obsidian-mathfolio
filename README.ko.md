@@ -2,7 +2,7 @@
 
 [Mathfolio](https://github.com/Glaysia/mathfolio)의 Rust 워크시트 편집기와 계산 엔진을 Obsidian에서 사용하는 TypeScript 플러그인이다.
 
-0.1.8 개발 빌드는 Mathfolio SDK 0.1.2-rc2를 연결한다. 공개 버전은 0.1.7이다. Linux / Obsidian Desktop 1.14.5와 PC 브라우저 웹 세션(Obsidian 1.14.4)에서 검증했다. 상세 범위와 남은 항목은 [검증 기록](docs/VERIFICATION.md)을 따른다. 커뮤니티 등록은 GitHub 릴리스와 별도 절차다.
+0.1.8은 정식 Mathfolio SDK 0.1.2를 연결한다. Linux / Obsidian Desktop 1.14.5와 PC 브라우저 웹 세션(Obsidian 1.14.4)에서 검증했다. 상세 범위와 남은 항목은 [검증 기록](docs/VERIFICATION.md)을 따른다. 커뮤니티 등록은 GitHub 릴리스와 별도 절차다.
 
 ## 설치와 사용
 
@@ -30,12 +30,13 @@ Node.js 24를 사용한다.
 npm ci
 npm run check
 npm run lint
+npm run audit
 npm test
 npm run build
 npm run install:vault -- /path/to/vault
 ```
 
-현재 개발 SDK는 먼저 `node scripts/sdk-prepare.mjs /path/to/mathfolio`로 준비한 뒤 `npm ci`로 설치한다. SDK 체크아웃의 dist/에 검증한 동일 tarball이 있어야 한다. 공개 배포 전에는 SDK 릴리스의 고정 URL로 의존성을 전환한다. `package-lock.json`과 `sdk.lock.json`에 URL·버전·소스 커밋·해시를 기록한다. SDK 0.1.2-rc2 / protocol 1을 사용하며 플러그인 버전과 독립적으로 관리한다.
+`npm ci`가 정식 SDK 0.1.2의 고정 GitHub Release tarball을 설치한다. `package-lock.json`과 `sdk.lock.json`에 URL·버전·소스 커밋·해시를 기록한다. 로컬 SDK 체크아웃이 없어도 빌드할 수 있다. SDK protocol 1을 유지하며 플러그인 버전과 독립적으로 관리한다. 개발 도구의 audit 검토는 [DEPENDENCY-AUDIT.md](docs/DEPENDENCY-AUDIT.md)를 따른다.
 
 로컬 SDK 개발 소스는 `/home/harry/Projects/RustProjects/mathfolio`다. `sdk:build`, `sdk:link`는 SDK 개발용으로 유지한다. 배포 빌드는 npm의 고정 패키지를 사용한다. 설치 도구는 기존 파일과 활성 플러그인 목록을 `.local-backups/`에 보존한다.
 

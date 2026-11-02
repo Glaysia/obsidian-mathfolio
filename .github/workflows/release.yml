@@ -20,7 +20,7 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run lint
-      - run: npm audit --audit-level=moderate
+      - run: npm run audit
       - run: npm test
       - run: npm run build
       - run: npm run check:release
@@ -47,4 +47,6 @@ jobs:
           assert.equal(release.tagName, process.env.GITHUB_REF_NAME);
           assert.deepEqual(release.assets.map(asset => asset.name).sort(), ['main.js', 'manifest.json', 'styles.css']);
           JS
+          gh release download "$GITHUB_REF_NAME" --dir "$RUNNER_TEMP/release-download"
+          for file in "${files[@]}"; do cmp "$file" "$RUNNER_TEMP/release-download/$file"; done
           gh release edit "$GITHUB_REF_NAME" --draft=false --latest

@@ -1,17 +1,18 @@
 {
   "package": "@mathfolio/wasm-sdk",
-  "version": "0.1.2-rc2",
+  "version": "0.1.2",
   "protocol": 1,
   "sourceRepository": "https://github.com/Glaysia/mathfolio",
-  "sourceCommit": "63da611467b501a0c3cb384909a87f863719d72d",
-  "status": "development",
-  "sha256": "71a9d388f6e522e17dd0f81103bc16693121d51a7b9597ea4b02f607c7918793",
-  "wasmSha256": "2fcaa38d70d2c710be9766802032777ae8523892ad3a1af8c2d23d1eacdac6e6",
+  "sourceCommit": "9d40235c91e5f0083942333e8780565d73d8b21f",
+  "status": "released",
+  "sha256": "dd22c3b4d8033d694e06ae5ee0e6f4611ff960c0a93459ed43c3c5cc0d2c4ec3",
+  "wasmSha256": "cb05afb3c353abbecc436b7117f0e2278d03b36415b29c72ee38875a86336ee0",
   "toolchain": {
     "rust": "1.99.0",
     "wasmBindgen": "0.2.129",
     "binaryen": "132.0.0"
   },
-  "buildPaths": "local-development",
-  "assetPath": ".sdk-source/mathfolio-wasm-sdk-0.1.2-rc2-71a9d388f6e5.tar.gz"
+  "buildPaths": "remapped",
+  "releaseTag": "v0.1.2",
+  "assetUrl": "https://github.com/Glaysia/mathfolio/releases/download/v0.1.2/mathfolio-wasm-sdk-0.1.2.tar.gz"
 }

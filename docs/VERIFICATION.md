@@ -70,3 +70,16 @@ Windows, 실제 분리 창, 물리 한글 IME 전체 흐름, 강제 종료/전�
 - 런타임 의존성 npm audit --omit=dev는 취약점 0개. 2026-11-02 전체 audit에는 개발 도구 minimatch GHSA-g3hv-75wg-m249에서 전파된 moderate 21개가 보고된다. eslint-plugin-obsidianmd 계열의 여러 minimatch 세대 API가 달라 전역 major override로 숨기지 않았다. 전체 audit 실패는 공개 CI 전 해결/검토할 항목으로 남긴다.
 
 최종 개발 빌드: main.js 4,421,766바이트, styles.css 3,371,205바이트. 두 파일 모두 5,000,000바이트 미만이다.
+
+
+## 0.1.8 정식 SDK·릴리즈 승인 검증 — 2026-11-02
+
+- 정식 Mathfolio SDK 0.1.2 / protocol 1을 v0.1.2 GitHub Release URL과 npm integrity에 고정했다. 원본 소스 9d40235c91e5f0083942333e8780565d73d8b21f, archive SHA-256 dd22c3b4d8033d694e06ae5ee0e6f4611ff960c0a93459ed43c3c5cc0d2c4ec3, 원본 WASM cb05afb3c353abbecc436b7117f0e2278d03b36415b29c72ee38875a86336ee0.
+- 개발용 RC2 의존성을 제거한 npm ci·타입 검사·strict ESLint·회귀 테스트 17개·build 통과. 5개 새 검사는 audit 정책의 알 수 없는 공지·변조 소스·누락 응답 및 상속/순환 의존성 처리를 확인한다.
+- 같은 세 설치 파일로 앞 절의 분리된 PC 웹 환경과 실제 Linux Obsidian Desktop에서 각각 13개 통합 검사 재통과. 웹 receipt는 2026-11-02T12:43:36.660Z, Desktop은 12:43:20.687Z에 완료됐다. 계산·저장·캐시·PDF·재열기·선택/삭제·충돌 및 복구를 확인했다.
+- 테스트 harness가 실제 로드한 최적화 WASM의 SHA-256도 기록한다. 두 환경 모두 ac888cb483af58b456f328b8007f5abe155e34261e6c056cbd99c44844348486으로 build-info와 일치했다. 최적화 WASM은 13,161,590바이트다.
+- 최종 main.js 4,421,766바이트, styles.css 3,371,209바이트로 각 5,000,000바이트 미만이다. 이번 SDK의 원본 저장소 브라우저 검사는 91개 통과했으며 해당 원본의 정식 배포 기록을 따른다.
+- 현대 minimatch 소비자는 11.0.4로, JSON schema lint 플러그인은 6.3.2로 업데이트했다. 런타임 audit 0개, 전체 raw audit 20 moderate는 개발 전용 minimatch 3.1.5의 같은 GHSA 공지와 상속 finding이다. 정확한 파일 해시와 문제 optimizer의 부재를 검증하는 단일 공지 검토만 허용하며 다른 moderate/high/critical은 계속 실패한다. [근거·범위](DEPENDENCY-AUDIT.md). 전체 raw audit가 0개라고 주장하지 않는다.
+- 사용자가 정식 게시를 요청했다. 릴리즈 CI는 고정 SDK에서 빌드하고 main.js·styles.css의 출처 증명을 생성한다. 표준 세 파일로 초안을 만든 뒤 다운로드와 바이트 대조를 통과한 초안만 게시한다.
+
+Windows 플러그인, 모바일, 실제 분리 창, 물리 한글 IME 전체 흐름과 강제 종료 복구의 미검증 범위는 유지한다. b2에 삭제된 테스트 문서를 만들지 않는다.

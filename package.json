@@ -14,7 +14,7 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "check": "npm run sdk:verify && node scripts/check.mjs && node --check scripts/build.mjs && node --check scripts/sdk-link.mjs && node --check scripts/version.mjs && node --check scripts/install.mjs && node --check scripts/sdk-build.mjs && node --check scripts/sdk-prepare.mjs",
+    "check": "npm run sdk:verify && node scripts/check.mjs && node --check scripts/build.mjs && node --check scripts/sdk-link.mjs && node --check scripts/version.mjs && node --check scripts/install.mjs && node --check scripts/sdk-build.mjs && node --check scripts/sdk-prepare.mjs && node --check scripts/audit.mjs && node --check scripts/audit-policy.mjs",
     "build": "npm run check && node scripts/build.mjs",
     "check:release": "node scripts/check.mjs --release",
     "sdk:link": "node scripts/sdk-link.mjs",
@@ -23,7 +23,8 @@
     "install:vault": "node scripts/install.mjs",
     "sdk:build": "node scripts/sdk-build.mjs",
     "lint": "eslint . --max-warnings 0",
-    "sdk:verify": "node scripts/sdk-verify.mjs"
+    "sdk:verify": "node scripts/sdk-verify.mjs",
+    "audit": "node scripts/audit.mjs"
   },
   "devDependencies": {
     "@eslint/js": "9.39.4",
@@ -40,10 +41,12 @@
     "typescript-eslint": "8.72.1"
   },
   "dependencies": {
-    "@mathfolio/wasm-sdk": "file:.sdk-source/mathfolio-wasm-sdk-0.1.2-rc2-71a9d388f6e5.tar.gz"
+    "@mathfolio/wasm-sdk": "https://github.com/Glaysia/mathfolio/releases/download/v0.1.2/mathfolio-wasm-sdk-0.1.2.tar.gz"
   },
   "overrides": {
     "obsidian": "$obsidian",
-    "moment": "2.31.0"
+    "moment": "2.31.0",
+    "eslint-plugin-json-schema-validator": "6.3.2",
+    "minimatch@>=9 <11.0.1": "11.0.4"
   }
 }
