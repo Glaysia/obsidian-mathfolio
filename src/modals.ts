@@ -44,9 +44,11 @@ export function askPath(app: App, title: string, initial: string): Promise<strin
 }
 
 export class NoticesModal extends Modal {
-  constructor(app: App, private readonly notices: string) { super(app); }
-  onOpen(): void {
+  constructor(app: App, private readonly notices: (element: HTMLElement) => Promise<string>) { super(app); }
+  async onOpen(): Promise<void> {
     this.setTitle("Mathfolio — licenses and source");
-    this.contentEl.createEl("pre", { text: this.notices, cls: "mathfolio-notices" });
+    const content = this.contentEl.createEl("pre", { text: "Loading licenses…", cls: "mathfolio-notices" });
+    try { content.textContent = await this.notices(this.contentEl); }
+    catch (error) { content.textContent = `Could not load licenses: ${String(error)}`; }
   }
 }

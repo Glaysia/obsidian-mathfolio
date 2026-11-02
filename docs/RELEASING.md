@@ -1,12 +1,16 @@
 # Release procedure
 
-Plugin and SDK versions are independent. The plugin uses Mathfolio SDK 0.1.1 / protocol 1.
+Plugin and SDK versions are independent. The current development plugin uses Mathfolio SDK 0.1.2-rc2 / protocol 1; public 0.1.7 uses SDK 0.1.1.
+
+## Current development state
+
+0.1.8 currently uses a local, hash-pinned Mathfolio SDK 0.1.2-rc2 archive. Run `node scripts/sdk-prepare.mjs /path/to/mathfolio` before npm ci. The source checkout and archive must exactly match sdk.lock.json. Public release is disabled: publish the SDK archive, switch to a fixed release URL, review the development-tool audit advisory and complete final CI before tagging. No 0.1.8 tag or release has been created.
 
 ## Pinned SDK
 
 `npm ci` installs the exact GitHub Release tarball URL in package.json. package-lock.json pins npm integrity; sdk.lock.json records the upstream source commit, release tag, archive SHA-256 and original WASM SHA-256. `npm run sdk:verify` checks the installed package version and WASM. No local symlink or Rust toolchain is needed for a release build.
 
-The build optimizes the pinned WASM with Binaryen 132, validates it, packs it with the static Worker and notices, and Brotli-compresses the payload. A printable binary encoding keeps main.js within 5,000,000 bytes. Desktop Obsidian's built-in Node zlib decodes it locally. Font data is stored in generated styles.css. Source CSS is css/plugin.css; never edit generated styles.css.
+The build optimizes the pinned WASM with Binaryen 132, validates it, packs it with the font and license notices, and gzip-compresses the binary payload. Printable encoding distributes the data across main.js and generated styles.css, each below 5,000,000 bytes. Browser DecompressionStream decodes it locally; Worker JavaScript remains static code in main.js. Source CSS is css/plugin.css; never edit generated styles.css.
 
 Local `sdk:build` and `sdk:link` are for SDK development. Updating the distribution SDK requires updating its URL, lockfile, sdk.lock.json and verification record together.
 

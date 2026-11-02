@@ -2,6 +2,8 @@
 
 Edit and calculate mathematical worksheets in Obsidian with the shared [Mathfolio](https://github.com/Glaysia/mathfolio) Rust editor and calculation engine.
 
+**0.1.8 development:** browser-compatible asset loading with Mathfolio SDK 0.1.2-rc2. The public release remains 0.1.7.
+
 [한국어 안내](README.ko.md) · [Development plan](PLAN.md) · [Verification](docs/VERIFICATION.md)
 
 ## Features
@@ -18,7 +20,7 @@ The worksheet editor, document state, history, calculation and PDF generation re
 
 Download `main.js`, `manifest.json` and `styles.css` from a [published release](https://github.com/Glaysia/obsidian-mathfolio/releases). Put them in `<vault>/.obsidian/plugins/mathfolio/` and enable Mathfolio in Community plugins. Back up existing plugin files before replacing them. Community directory registration is separate from GitHub releases.
 
-The plugin includes the editor, compressed WASM/calculation Worker and license notices in main.js, plus Korean font data in styles.css. Each installed file is below 5 MB. The desktop runtime decompresses packaged assets locally. It does not require a Mathfolio desktop installation, Rust, Node.js, a local server or a CDN on the user's machine.
+The standard installation files contain the WASM, Korean font and license data. A browser gzip stream decompresses these binary assets locally; the calculation Worker is static JavaScript bundled in main.js. Each installed file is below 5 MB. The plugin does not require a separate Mathfolio installation, Rust, Node.js, an SDK asset server or a CDN.
 
 ## Usage
 
@@ -36,7 +38,7 @@ The worksheet picker lists only the folder selected by the user, with navigation
 
 ## Development
 
-Use Node.js 24 and npm:
+Use Node.js 24 and npm. For the current development SDK, first run `node scripts/sdk-prepare.mjs /path/to/mathfolio` against the pinned source checkout containing the tested SDK archive in dist/:
 
 ```sh
 npm ci
@@ -46,7 +48,7 @@ npm test
 npm run build
 ```
 
-`npm ci` installs a pinned Mathfolio SDK tarball, including TypeScript declarations, from the original project's GitHub release. `sdk.lock.json` records the SDK version, source commit, archive SHA-256 and WASM SHA-256; the npm lockfile also pins package integrity.
+`npm ci` installs the exact SDK archive recorded in package-lock.json. Version 0.1.8 currently uses a local SDK 0.1.2-rc2 development archive prepared by sdk-prepare; sdk.lock.json records its source commit, archive SHA-256 and WASM SHA-256. A public plugin release requires publishing the SDK and changing the dependency to its fixed release URL first.
 
 The local SDK source checkout is `/home/harry/Projects/RustProjects/mathfolio`. SDK build/link tools remain available for SDK development. A local link must match the recorded source and WASM hash; distribution builds use the locked package.
 
@@ -58,7 +60,7 @@ This installer backs up the existing plugin files and enabled-plugin list into `
 
 ## Compatibility and releases
 
-Desktop only; minimum Obsidian version 1.14.4. Linux / Obsidian 1.14.5 has been exercised in a real Vault. Windows, physical Korean IME workflows and crash/power-loss recovery have not been fully verified. Mobile is not supported.
+Minimum Obsidian version 1.14.4. Verified on Linux / Obsidian Desktop 1.14.5 and a PC browser web session running Obsidian 1.14.4. Web host compatibility is limited to the tested environment; it is not a claim that every Obsidian-derived host works. Windows plugin workflows, physical Korean IME and crash/power-loss recovery remain unverified. Mobile is not supported; the manifest retains its desktop-only flag.
 
 Plugin and SDK versions are independent. Only release tags matching `manifest.json` exactly, without a `v` prefix, are used for Obsidian plugin distribution. See [release instructions](docs/RELEASING.md).
 

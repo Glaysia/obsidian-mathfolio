@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.8 — Development
+
+- Load binary assets with browser gzip streams without Node runtime imports.
+- Keep the standard three-file installation and per-file 5 MB limit.
+- Integrate the pinned Mathfolio 0.1.2-rc2 development SDK with selection shortcuts and acknowledged web cuts.
+- Test calculation, save/reopen, PDF, settings, keyboard input and conflict recovery in isolated web and desktop Vaults.
+- Add corrupted-payload checks and a reusable test-only Obsidian integration harness.
+
 ## 0.1.7 — Verified integration
 
 - Validate compressed assets in a separate Linux Obsidian 1.14.5 Vault.

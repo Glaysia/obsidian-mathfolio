@@ -3,7 +3,7 @@ import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from 
 import { join, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { brotliCompressSync, constants } from "node:zlib";
+import { gzipSync } from "node:zlib";
 import { build } from "esbuild";
 
 const sdk = resolve("node_modules/@mathfolio/wasm-sdk");
@@ -37,41 +37,38 @@ for (const file of ["LICENSE", "NOTICE.md"]) notices.push(readFileSync(join(sdk,
 for (const folder of ["licenses", "fonts"]) if (existsSync(join(sdk, folder))) include(join(sdk, folder));
 const encoder = await build({ entryPoints: ["src/encoding.ts"], bundle: true, format: "esm", platform: "node", write: false });
 const { encode91, decode91 } = await import("data:text/javascript;base64," + Buffer.from(encoder.outputFiles[0].contents).toString("base64"));
-const workerBytes = Buffer.from(worker.outputFiles[0].text);
-const header = Buffer.alloc(8); header.writeUInt32LE(wasm.length); header.writeUInt32LE(workerBytes.length, 4);
-const packed = Buffer.concat([header, wasm, workerBytes, Buffer.from(notices.join("\n\n"))]);
-const compressed = brotliCompressSync(packed, { params: { [constants.BROTLI_PARAM_QUALITY]: 11 } });
+const font = readFileSync(join(sdk, "fonts/nanum/NanumGothic-Regular.ttf"));
+const header = Buffer.alloc(12);
+header.writeUInt32LE(0x3841464d); header.writeUInt32LE(wasm.length, 4); header.writeUInt32LE(font.length, 8);
+const packed = Buffer.concat([header, wasm, font, Buffer.from(notices.join("\n\n"))]);
+const compressed = gzipSync(packed, { level: 9 });
 const encoded = encode91(compressed);
 if (!Buffer.from(decode91(encoded)).equals(compressed)) throw new Error("Asset transport roundtrip failed");
+// The standard installation has three files. Distribute binary asset data
+// across main.js and CSS while keeping each file below 5,000,000 bytes.
+// Worker JavaScript remains static code in main.js, never in the stylesheet.
+const prefix = encoded.slice(0, 4_300_000);
+const parts = encoded.slice(prefix.length).match(/.{1,524288}/g) ?? [""];
 await build({ entryPoints: ["src/main.ts"], bundle: true, minify: true, keepNames: true,
-  external: ["obsidian", "electron", "node:*", "@codemirror/*", "@lezer/*"],
+  external: ["obsidian", "electron", "@codemirror/*", "@lezer/*"],
   format: "cjs", platform: "browser", target: "es2022", outfile: "main.js", sourcemap: false,
-  legalComments: "inline", banner: { js: "/*! Mathfolio for Obsidian — AGPL-3.0-only. Compressed WASM/Worker assets; see scripts/build.mjs and settings for notices. */" },
+  legalComments: "inline", banner: { js: "/*! Mathfolio for Obsidian — AGPL-3.0-only. Packaged binary assets; see scripts/build.mjs and settings for notices. */" },
   logLevel: "info", logOverride: { "empty-import-meta": "silent" },
   plugins: [{ name: "embedded-sdk", setup(build) {
     build.onResolve({ filter: /^mathfolio:assets$/ }, () => ({ path: "assets", namespace: "mathfolio" }));
-    build.onLoad({ filter: /.*/, namespace: "mathfolio" }, () => ({ loader: "js", resolveDir: process.cwd(), contents: `
-      import {brotliDecompressSync} from "node:zlib";
-      import {decode91} from "./src/encoding.ts";
-      const data = brotliDecompressSync(decode91(${JSON.stringify(encoded)}));
-      const header = new DataView(data.buffer, data.byteOffset, data.byteLength);
-      const endWasm = 8 + header.getUint32(0, true), endWorker = endWasm + header.getUint32(4, true);
-      export const wasm = data.subarray(8, endWasm);
-      export const workerSource = new TextDecoder().decode(data.subarray(endWasm, endWorker));
-      export const notices = new TextDecoder().decode(data.subarray(endWorker));
+    build.onLoad({ filter: /.*/, namespace: "mathfolio" }, () => ({ loader: "js", contents: `
+      export const packedPrefix = ${JSON.stringify(prefix)};
+      export const workerSource = ${JSON.stringify(worker.outputFiles[0].text)};
     ` }));
   } }],
 });
-const font = readFileSync(join(sdk, "fonts/nanum/NanumGothic-Regular.ttf"));
-// Chromium limits individual custom-property values. Keep each font part below
-// that limit; the host joins the base64 font data before passing it to Rust.
-const fontParts = font.toString("base64").match(/.{1,524288}/g);
 writeFileSync("styles.css", readFileSync("css/plugin.css", "utf8") +
-  `\n/* Bundled Nanum Gothic TTF for the Rust editor; font license is embedded in main.js. */\n.mathfolio-view { --mathfolio-font-parts: ${fontParts.length};\n` +
-  fontParts.map((part, i) => `--mathfolio-font-${i}: "${part}";`).join("\n") + "\n}\n");
+  `\n/* Packaged WASM/font/license bytes. No JavaScript is stored or executed here. */\n:root { --mathfolio-asset-parts: ${parts.length};\n` +
+  parts.map((part, i) => `--mathfolio-asset-${i}: "${part}";`).join("\n") + "\n}\n");
 const sizes = Object.fromEntries(["main.js", "styles.css"].map(file => [file, readFileSync(file).length]));
 writeFileSync("build-info.json", JSON.stringify({ sdk: JSON.parse(readFileSync("sdk.lock.json", "utf8")),
   bytes: sizes["main.js"], sizes, wasm: { inputBytes: input.length, optimizedBytes: wasm.length,
     optimizedSha256: createHash("sha256").update(wasm).digest("hex") },
-  compressedBytes: compressed.length, assetsEmbedded: ["wasm", "worker", "font", "licenses"] }, null, 2) + "\n");
+  compression: "gzip", compressedBytes: compressed.length, assetsEmbedded: ["wasm", "worker", "font", "licenses"] }, null, 2) + "\n");
+for (const [file, bytes] of Object.entries(sizes)) if (bytes >= 5_000_000) throw new Error(`${file} exceeds the installation file limit`);
 console.log(JSON.stringify({ sizes, wasm: wasm.length, compressed: compressed.length }));

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import { EditableFileView, TFile, WorkspaceLeaf, Notice, Scope } from "obsidian";
 import { MathfolioEditor, type Command, type HostRequest, type SessionState } from "@mathfolio/wasm-sdk";
-import { wasm } from "mathfolio:assets";
-import { bundledFont } from "./font";
 import type MathfolioPlugin from "./main";
 import { arrayBuffer, fingerprint, writeSnapshot } from "./save";
 import { hostTheme } from "./theme";
@@ -71,15 +69,17 @@ export class MathfolioView extends EditableFileView {
   private async mount(): Promise<void> {
     this.mounted ??= (async () => {
       if (!this.canvas) throw new Error("Mathfolio view is not open");
-      const editor = await MathfolioEditor.mount({ canvas: this.canvas, wasm: arrayBuffer(wasm),
-        workerUrl: this.plugin.workerUrl, fonts: [{ name: "Nanum Gothic", bytes: bundledFont(this.contentEl) }] });
+      const assets = await this.plugin.assets(this.contentEl);
+      if (this.closing) return;
+      const editor = await MathfolioEditor.mount({ canvas: this.canvas, wasm: arrayBuffer(assets.wasm),
+        workerUrl: this.plugin.workerUrl, fonts: [{ name: "Nanum Gothic", bytes: assets.font }] });
       if (this.closing) { editor.dispose(); return; }
       this.editor = editor;
       this.applyTheme();
       editor.subscribe(state => this.stateChanged(state));
       editor.onRequest(request => this.plugin.run(() => this.request(request)));
       this.updateActive();
-    })();
+    })().catch((error: unknown) => { this.mounted = undefined; throw error; });
     await this.mounted;
   }
 

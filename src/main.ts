@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import { Plugin, TFile, TFolder, normalizePath, PluginSettingTab, Notice, type SettingDefinitionItem } from "obsidian";
 import { DEFAULT_SETTINGS, readSettings, themeMode, errorMessage, type MathfolioSettingsData } from "./settings";
-import { wasm, workerSource, notices } from "mathfolio:assets";
+import { loadAssets, workerSource, type PackedAssets } from "./assets";
 import { MathfolioView, VIEW_TYPE } from "./view";
 import { WorksheetPicker, askPath, NoticesModal } from "./modals";
 import { arrayBuffer } from "./save";
@@ -15,22 +15,20 @@ export default class MathfolioPlugin extends Plugin {
   settings: MathfolioSettingsData = { ...DEFAULT_SETTINGS };
   workerUrl = "";
   private wasmUrl = "";
+  private assetPromise?: Promise<PackedAssets>;
+  private unloading = false;
   private readonly writes = new Map<string, Promise<unknown>>();
   readonly views = new Set<MathfolioView>();
 
   async onload(): Promise<void> {
     const stored: unknown = await this.loadData();
     this.settings = readSettings(stored);
-    this.wasmUrl = URL.createObjectURL(new Blob([arrayBuffer(wasm)], { type: "application/wasm" }));
-    this.workerUrl = URL.createObjectURL(new Blob([
-      `const MATHFOLIO_WASM_URL = ${JSON.stringify(this.wasmUrl)};\n`, workerSource,
-    ], { type: "text/javascript" }));
     this.registerView(VIEW_TYPE, leaf => new MathfolioView(leaf, this));
     this.registerExtensions(["mathfolio", "mathcraft", "mcdx"], VIEW_TYPE);
     this.addRibbonIcon("square-function", "Create Mathfolio worksheet", () => this.run(() => this.createWorksheet()));
     this.addCommand({ id: "new-worksheet", name: "Create worksheet", callback: () => this.run(() => this.createWorksheet()) });
     this.addCommand({ id: "open-worksheet", name: "Open worksheet", callback: () => this.pickWorksheet() });
-    this.addCommand({ id: "show-licenses", name: "Show licenses and source", callback: () => new NoticesModal(this.app, notices).open() });
+    this.addCommand({ id: "show-licenses", name: "Show licenses and source", callback: () => new NoticesModal(this.app, element => this.assets(element).then(assets => assets.notices)).open() });
     this.addCommand({ id: "recover-worksheet", name: "Open latest recovery copy", callback: () => this.run(() => this.showRecovery()) });
     for (const [id, name, action] of [
       ["save-worksheet", "Save worksheet", (view: MathfolioView) => view.save()],
@@ -52,6 +50,20 @@ export default class MathfolioPlugin extends Plugin {
       if (file instanceof TFile) this.views.forEach(view => { if (view.file === file) view.externalChanged(); });
     }));
     this.addSettingTab(new MathfolioSettings(this));
+  }
+
+  assets(element: HTMLElement): Promise<PackedAssets> {
+    this.assetPromise ??= loadAssets(element).then(assets => {
+      if (this.unloading) throw new Error("Mathfolio is unloading");
+      this.wasmUrl = URL.createObjectURL(new Blob([arrayBuffer(assets.wasm)], { type: "application/wasm" }));
+      try {
+        this.workerUrl = URL.createObjectURL(new Blob([
+          `const MATHFOLIO_WASM_URL = ${JSON.stringify(this.wasmUrl)};\n`, workerSource,
+        ], { type: "text/javascript" }));
+      } catch (error) { URL.revokeObjectURL(this.wasmUrl); this.wasmUrl = ""; throw error; }
+      return assets;
+    }).catch((error: unknown) => { this.assetPromise = undefined; throw error; });
+    return this.assetPromise;
   }
 
   run(action: () => Promise<unknown>): void {
@@ -102,6 +114,7 @@ export default class MathfolioPlugin extends Plugin {
   }
 
   onunload(): void {
+    this.unloading = true;
     // Component unload is synchronous; keep the sessions alive for their final asynchronous save/recovery.
     const closing = [...this.views].map(view => view.finish());
     void Promise.allSettled(closing).then(() => { URL.revokeObjectURL(this.workerUrl); URL.revokeObjectURL(this.wasmUrl); });
@@ -116,7 +129,7 @@ class MathfolioSettings extends PluginSettingTab {
         options: { follow_host: "Follow Obsidian", light: "Light", dark: "Dark", nord: "Nord" } } },
       { name: "Auto-save", desc: "Save after editing pauses. External changes are kept as conflicts.",
         control: { type: "toggle", key: "autosave", defaultValue: true } },
-      { name: "Licenses and source", action: () => new NoticesModal(this.app, notices).open() },
+      { name: "Licenses and source", action: () => new NoticesModal(this.app, element => this.plugin.assets(element).then(assets => assets.notices)).open() },
     ];
   }
   async setControlValue(key: string, value: unknown): Promise<void> {

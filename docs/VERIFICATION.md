@@ -1,6 +1,6 @@
 # 검증 기록 — 2026-10-30
 
-이전 0.1.0 기록은 아래에 보존한다. 최신 결과는 0.1.7 절을 따른다.
+이전 0.1.0 기록은 아래에 보존한다. 최신 개발 결과는 0.1.8 절을 따른다.
 
 ## 0.1.0 환경과 빌드
 
@@ -55,3 +55,18 @@
 - 로컬 통합 실행 스크립트·JSON·스크린샷은 개발 체크아웃의 artifacts/에 남긴다. 사용자 Vault 데이터는 릴리스에 포함하지 않는다.
 
 Windows, 실제 분리 창, 물리 한글 IME 전체 흐름, 강제 종료/전원 차단 복구는 미검증이다. Obsidian 커뮤니티의 재검사 통과 여부는 해당 서비스의 새 결과를 기다려야 한다.
+
+
+## 0.1.8 개발 통합 검증 — 2026-11-02
+
+- Mathfolio SDK 0.1.2-rc2 / protocol 1, 소스 커밋 63da611467b501a0c3cb384909a87f863719d72d. 개발 아카이브·원본 WASM 해시는 sdk.lock.json에 고정한다. 공개 SDK 릴리스 의존성으로 전환하기 전까지 공개 플러그인 릴리스 gate는 false다.
+- gzip 압축 바이너리 데이터를 main.js와 styles.css로 나눠 보관한다. 각 CSS 문자열을 524,288자 이하로 나누며 Worker JavaScript는 main.js에 정적으로 포함한다. 실행 경로는 Node zlib를 사용하지 않는다.
+- Node.js 24, 타입 검사·공식 strict ESLint·회귀 테스트 12개 통과. gzip 손상, 잘못된 패키지 헤더, 잘린 WASM/글꼴 범위와 전송 문자열 검사를 포함한다.
+- 운영 8082와 b2를 건드리지 않는 별도 rootless Podman 테스트 서비스 9082, 빈 QA Vault, 기존과 같은 Ignis 이미지(0.8.18)와 Obsidian 1.14.4 프로그램을 사용했다. 프로그램 볼륨은 읽기 전용이며 b2·운영 runtime data는 마운트하지 않았다. 브라우저는 Chromium 155다.
+- 실제 Flatpak Obsidian Desktop 1.14.5의 별도 QA 프로필에서도 같은 세 설치 파일과 같은 테스트 harness를 실행했다. CLI는 테스트 프로필에서만 활성화했다.
+- 두 환경에서 통합 검사 13개씩 통과: 검색 가능한 설정, 테마 반영, 열기만으로 계산하지 않음, 실제 Worker 2+3=5, 쓰기 성공 후 저장 승인, 계산 캐시 저장, 44,443바이트 PDF, 재열기 시 worker_count=0과 캐시 유지, 실제 DOM Ctrl+A/Delete, SaveConflict, 외부 내용 보존, 복구 사본 생성.
+- tests/obsidian-harness.cjs는 테스트 전용 플러그인으로 Vault 이름이 QA일 때만 실행한다. 배포 번들에 포함하지 않는다. 원시 JSON은 artifacts/web-qa/vaults/QA/QA-report.json과 별도 Desktop QA Vault에 보존한다.
+- Mathfolio SDK의 실제 WebRunner 검사 90개는 원본 저장소의 rc2 기록을 따른다. 물리 IME/마우스, Windows 플러그인, 모바일과 강제 종료 복구를 검증했다는 뜻은 아니다.
+- 런타임 의존성 npm audit --omit=dev는 취약점 0개. 2026-11-02 전체 audit에는 개발 도구 minimatch GHSA-g3hv-75wg-m249에서 전파된 moderate 21개가 보고된다. eslint-plugin-obsidianmd 계열의 여러 minimatch 세대 API가 달라 전역 major override로 숨기지 않았다. 전체 audit 실패는 공개 CI 전 해결/검토할 항목으로 남긴다.
+
+최종 개발 빌드: main.js 4,421,766바이트, styles.css 3,371,205바이트. 두 파일 모두 5,000,000바이트 미만이다.

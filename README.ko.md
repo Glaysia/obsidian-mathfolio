@@ -2,7 +2,7 @@
 
 [Mathfolio](https://github.com/Glaysia/mathfolio)의 Rust 워크시트 편집기와 계산 엔진을 Obsidian에서 사용하는 TypeScript 플러그인이다.
 
-Linux / Obsidian 1.14.5에서 검증했다. 상세 범위와 남은 항목은 [검증 기록](docs/VERIFICATION.md)을 따른다. 커뮤니티 등록은 GitHub 릴리스와 별도 절차다.
+0.1.8 개발 빌드는 Mathfolio SDK 0.1.2-rc2를 연결한다. 공개 버전은 0.1.7이다. Linux / Obsidian Desktop 1.14.5와 PC 브라우저 웹 세션(Obsidian 1.14.4)에서 검증했다. 상세 범위와 남은 항목은 [검증 기록](docs/VERIFICATION.md)을 따른다. 커뮤니티 등록은 GitHub 릴리스와 별도 절차다.
 
 ## 설치와 사용
 
@@ -20,7 +20,7 @@ Linux / Obsidian 1.14.5에서 검증했다. 상세 범위와 남은 항목은 [�
 
 Rust가 편집기·문서·계산·이력·PDF 출력을 소유한다. TypeScript는 Vault IO, 뷰, 설정과 테마를 연결한다. 계산은 로컬 Worker에서 실행하고 문서나 원격 측정 데이터를 서버로 보내지 않는다. 선택한 폴더와 복구 폴더만 목록을 조회하며 Vault 전체 파일을 열거하지 않는다.
 
-압축된 WASM·Worker·라이선스는 `main.js`, 한글 글꼴 데이터는 `styles.css`에 포함한다. 각 설치 파일은 5,000,000바이트 미만이다. Obsidian Desktop에 내장된 Node zlib로 로컬에서 압축을 푼다. 사용자가 Rust, Node.js 또는 독립판 Mathfolio를 별도 설치할 필요가 없다. CDN이나 로컬 서버도 필요하지 않다.
+압축된 WASM·글꼴·라이선스 데이터는 `main.js`와 `styles.css`에 나눠 포함하고, 정적 Worker 코드는 main.js에 포함한다. 각 설치 파일은 5,000,000바이트 미만이며 브라우저 기본 gzip API로 압축을 푼다. 사용자가 Rust, Node.js 또는 독립판 Mathfolio를 별도 설치할 필요가 없다. CDN이나 로컬 서버도 필요하지 않다.
 
 ## 개발
 
@@ -35,11 +35,11 @@ npm run build
 npm run install:vault -- /path/to/vault
 ```
 
-`npm ci`가 원본 Mathfolio의 고정된 GitHub Release tarball과 TypeScript 선언을 설치한다. `package-lock.json`과 `sdk.lock.json`에 URL·버전·소스 커밋·해시를 기록한다. SDK 0.1.1 / protocol 1을 사용하며 플러그인 버전과 독립적으로 관리한다.
+현재 개발 SDK는 먼저 `node scripts/sdk-prepare.mjs /path/to/mathfolio`로 준비한 뒤 `npm ci`로 설치한다. SDK 체크아웃의 dist/에 검증한 동일 tarball이 있어야 한다. 공개 배포 전에는 SDK 릴리스의 고정 URL로 의존성을 전환한다. `package-lock.json`과 `sdk.lock.json`에 URL·버전·소스 커밋·해시를 기록한다. SDK 0.1.2-rc2 / protocol 1을 사용하며 플러그인 버전과 독립적으로 관리한다.
 
 로컬 SDK 개발 소스는 `/home/harry/Projects/RustProjects/mathfolio`다. `sdk:build`, `sdk:link`는 SDK 개발용으로 유지한다. 배포 빌드는 npm의 고정 패키지를 사용한다. 설치 도구는 기존 파일과 활성 플러그인 목록을 `.local-backups/`에 보존한다.
 
-Desktop 전용, 최소 Obsidian 1.14.4. Windows, 분리 창, 물리 한글 IME 전체 동작과 강제 종료 복구는 아직 검증하지 않았다. Mobile은 지원하지 않는다.
+최소 Obsidian 1.14.4. PC 브라우저 웹 세션은 검증한 호스트 환경을 대상으로 한다. 모바일 지원을 선언하지 않으며 manifest의 desktop-only 플래그를 유지한다. Windows, 분리 창, 물리 한글 IME 전체 동작과 강제 종료 복구는 아직 검증하지 않았다. Mobile은 지원하지 않는다.
 
 [개발 계획](PLAN.md) · [릴리스 절차](docs/RELEASING.md) · [검증 기록](docs/VERIFICATION.md) · [English](README.md)
 
